@@ -2,15 +2,16 @@ package dao
 
 import (
 	"cevafacil.com.br/model"
+	"cevafacil.com.br/service"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-	"cevafacil.com.br/service"
 	"strconv"
 )
 
 func FindSellerByIdAndSize(id int, size int, lat float64, lng float64) (seller model.Sellers) {
 
-	session, err := mgo.Dial("mongodb://admin:admin@ds015720.mlab.com:15720/cevafacil")
+	//session, err := mgo.Dial("mongodb://admin:admin@ds015720.mlab.com:15720/cevafacil")
+	session, err := mgo.Dial("mongodb://localhost:27017/cevafacil")
 
 	if err != nil {
 
@@ -20,33 +21,11 @@ func FindSellerByIdAndSize(id int, size int, lat float64, lng float64) (seller m
 
 	defer session.Close()
 
-	c := session.DB("cevafacil").C("products_values")
+	c := session.DB("cevafacil").C("sellers")
 
-	var beers model.Beers
+	var beers model.Sellers
 
-	err = c.Find(bson.M{"beer": id, "size": size}).All(&beers)
-
-	if err != nil {
-
-		panic(err)
-
-	}
-
-	var sellers = make([]int,len(beers))
-
-	for key := range beers {
-		
-		sellers[key] = beers[key].Seller
-
-	}
-
-	var result model.Sellers
-
-	d := session.DB("cevafacil").C("sellers")
-
-	query := bson.M{"id": bson.M{"$in": sellers}}
-
-	err = d.Find(query).All(&result)
+	err = c.Find(bson.M{"beers.beer": id, "beers.size": size}).Limit(20).All(&beers)
 
 	if err != nil {
 
@@ -54,26 +33,34 @@ func FindSellerByIdAndSize(id int, size int, lat float64, lng float64) (seller m
 
 	}
 
-	if result != nil {
-		
-		for i := 0; i < len(result); i++ {
-			
-			for j := 0; j < len(beers); j++ {
-				
-				if result[i].Id == beers[j].Seller {
+	if beers != nil {
 
-					result[i].Value = beers[j].Value
+		for i := 0; i < len(beers); i++ {
 
-					result[i].Distance = strconv.FormatFloat(service.Distance(lat, lng, result[i].Lat, result[i].Lng), 'f', 6, 64)
+			beers[i].Distance = strconv.FormatFloat(service.Distance(lat, lng, beers[i].Lat, beers[i].Lng)/1000, 'f', 6, 64)
+
+			var beersNil = make([]model.Beer, 0)
+
+			var beersAux = make([]model.Beer, 1)
+
+			for j := 0; j < len(beers[i].Beers); j++ {
+
+				if beers[i].Beers[j].Size == size && beers[i].Beers[j].Beer == id {
+
+					beersAux[0] = beers[i].Beers[j]
 
 				}
 
 			}
 
+			beers[i].Beers = beersNil
+
+			beers[i].Beer = beersAux[0]
+
 		}
 
 	}
 
-	return result
+	return beers
 
 }

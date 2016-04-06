@@ -11,16 +11,17 @@ type Seller struct {
 	Lng         float64
 	Cards       []string
 	Address     string
-	Value		string
+	Value       string
+	Beers       []Beer
+	Beer        Beer
 }
 
 type Sellers []Seller
 
 type Beer struct {
-	Seller int
-	Beer   int
-	Size   int
-	Value  string
+	Beer  int
+	Size  int
+	Value string
 }
 
 type Beers []Beer

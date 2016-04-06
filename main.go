@@ -37,6 +37,8 @@ func findByIdAndSize(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 
 	result := dao.FindSellerByIdAndSize(id, size, lat, lng)
 
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
 	w.Header().Set("Content-Type", "application/json; charset=utf8")
 
 	json.NewEncoder(w).Encode(result)
