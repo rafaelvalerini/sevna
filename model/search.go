@@ -11,6 +11,7 @@ type Seller struct {
 	Lng         float64
 	Cards       []string
 	Address     string
+	Value		string
 }
 
 type Sellers []Seller
