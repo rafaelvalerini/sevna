@@ -7,9 +7,16 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	//log "github.com/dmuth/google-go-log4go"
 )
 
 func main() {
+
+	//log.SetLevel(log.DebugLevel)
+
+	//log.SetDisplayTime(true)
+
+	//log.Info("cevafacil")
 
 	router := httprouter.New()
 
@@ -46,7 +53,6 @@ func findByIdAndSize(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 	json.NewEncoder(w).Encode(result)
 
 }
-
 
 func findBySeller(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 

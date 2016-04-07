@@ -74,8 +74,8 @@ func FindSellerByIdAndSize(id int, size int, lat float64, lng float64) (seller m
 
 func FindSellerById(id int, size int, lat float64, lng float64) (seller model.Seller) {
 
-	//session, err := mgo.Dial("mongodb://admin:admin@ds015720.mlab.com:15720/cevafacil")
-	session, err := mgo.Dial("mongodb://localhost:27017/cevafacil")
+	session, err := mgo.Dial("mongodb://admin:admin@ds015720.mlab.com:15720/cevafacil")
+	//session, err := mgo.Dial("mongodb://localhost:27017/cevafacil")
 
 	if err != nil {
 
