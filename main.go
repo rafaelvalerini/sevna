@@ -15,6 +15,8 @@ func main() {
 
 	router.GET("/types/:id/:size/:lat/:lng", findByIdAndSize)
 
+	router.GET("/seller/:id/:size/:lat/:lng", findBySeller)
+
 	log.Fatal(http.ListenAndServe(":7001", router))
 
 }
@@ -36,6 +38,33 @@ func findByIdAndSize(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 	}
 
 	result := dao.FindSellerByIdAndSize(id, size, lat, lng)
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	w.Header().Set("Content-Type", "application/json; charset=utf8")
+
+	json.NewEncoder(w).Encode(result)
+
+}
+
+
+func findBySeller(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+	id, err := strconv.Atoi(ps.ByName("id"))
+
+	size, err := strconv.Atoi(ps.ByName("size"))
+
+	lat, err := strconv.ParseFloat(ps.ByName("lat"), 64)
+
+	lng, err := strconv.ParseFloat(ps.ByName("lng"), 64)
+
+	if err != nil {
+
+		panic(err)
+
+	}
+
+	result := dao.FindSellerById(id, size, lat, lng)
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
