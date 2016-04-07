@@ -3,9 +3,10 @@ package dao
 import (
 	"cevafacil.com.br/model"
 	"cevafacil.com.br/service"
+	"fmt"
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
-	"fmt"
+	"sort"
 )
 
 func FindSellerByIdAndSize(id int, size int, lat float64, lng float64) (seller model.Sellers) {
@@ -25,7 +26,7 @@ func FindSellerByIdAndSize(id int, size int, lat float64, lng float64) (seller m
 
 	var beers model.Sellers
 
-	err = c.Find(bson.M{"beers.beer": id, "beers.size": size}).Limit(20).All(&beers)
+	err = c.Find(bson.M{"beers.beer": id, "beers.size": size}).All(&beers)
 
 	if err != nil {
 
@@ -38,6 +39,10 @@ func FindSellerByIdAndSize(id int, size int, lat float64, lng float64) (seller m
 		for i := 0; i < len(beers); i++ {
 
 			beers[i].Distance = fmt.Sprintf("%.2fKm", service.Distance(lat, lng, beers[i].Lat, beers[i].Lng)/1000)
+
+			beers[i].LatLocal = lat
+
+			beers[i].LngLocal = lng
 
 			var beersNil = make([]model.Beer, 0)
 
@@ -61,10 +66,11 @@ func FindSellerByIdAndSize(id int, size int, lat float64, lng float64) (seller m
 
 	}
 
+	sort.Sort(beers)
+
 	return beers
 
 }
-
 
 func FindSellerById(id int, size int, lat float64, lng float64) (seller model.Seller) {
 
