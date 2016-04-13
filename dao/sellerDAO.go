@@ -9,7 +9,7 @@ import (
 	"sort"
 )
 
-func FindSellerByIdAndSize(id int, size int, lat float64, lng float64) (seller model.Sellers) {
+func FindSellerByIdAndSize(id int, brand int, size int, lat float64, lng float64) (seller model.Sellers) {
 
 	session, err := mgo.Dial("mongodb://admin:admin@ds015720.mlab.com:15720/cevafacil")
 	//session, err := mgo.Dial("mongodb://localhost:27017/cevafacil")
@@ -26,7 +26,7 @@ func FindSellerByIdAndSize(id int, size int, lat float64, lng float64) (seller m
 
 	var beers model.Sellers
 
-	err = c.Find(bson.M{"beers.beer": id, "beers.size": size}).All(&beers)
+	err = c.Find(bson.M{"types": id, "beers.beer": brand, "beers.size": size}).All(&beers)
 
 	if err != nil {
 

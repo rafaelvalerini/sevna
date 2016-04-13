@@ -6,6 +6,7 @@ import (
 
 type Seller struct {
 	Id          int
+	Types       []int
 	Name        string
 	Img         string
 	Distance    string

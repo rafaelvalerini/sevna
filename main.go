@@ -20,7 +20,7 @@ func main() {
 
 	router := httprouter.New()
 
-	router.GET("/types/:id/:size/:lat/:lng", findByIdAndSize)
+	router.GET("/type/:id/brand/:brand/size/:size/lat/:lat/lng/:lng", findByIdAndSize)
 
 	router.GET("/seller/:id/:size/:lat/:lng", findBySeller)
 
@@ -31,6 +31,8 @@ func main() {
 func findByIdAndSize(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	id, err := strconv.Atoi(ps.ByName("id"))
+
+	brand, err := strconv.Atoi(ps.ByName("brand"))
 
 	size, err := strconv.Atoi(ps.ByName("size"))
 
@@ -44,7 +46,7 @@ func findByIdAndSize(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 
 	}
 
-	result := dao.FindSellerByIdAndSize(id, size, lat, lng)
+	result := dao.FindSellerByIdAndSize(id, brand, size, lat, lng)
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
