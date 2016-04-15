@@ -24,6 +24,8 @@ func main() {
 
 	router.GET("/seller/:id/:size/:lat/:lng", findBySeller)
 
+	router.GET("/user/:user/password/:pass", findByUserAndPassword)
+
 	log.Fatal(http.ListenAndServe(":7001", router))
 
 }
@@ -73,6 +75,22 @@ func findBySeller(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 	}
 
 	result := dao.FindSellerById(id, size, lat, lng)
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+
+	w.Header().Set("Content-Type", "application/json; charset=utf8")
+
+	json.NewEncoder(w).Encode(result)
+
+}
+
+func findByUserAndPassword(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+	user := ps.ByName("user")
+
+	password := ps.ByName("pass")
+
+	result := dao.FindSellerByUserAndPassword(user, password)
 
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
