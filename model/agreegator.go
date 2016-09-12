@@ -58,3 +58,12 @@ type Promotion struct{
 	Name string `json:"name"`
 	PromotionCode string `json:"promotion_code"`
 }
+
+type MoreUser struct{
+	Modality string `json:"modality"`
+	Value int64 `json:"value"`
+}
+
+type Message struct{
+	Message string `json:"message"`
+}
