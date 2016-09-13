@@ -31,6 +31,8 @@ func main() {
 
 	router.GET("/v1/notification", notification)
 
+	router.GET("/v1/estimates/saved", savedEstimates)
+
 	c := cors.New(cors.Options{
 	    AllowedOrigins: []string{"*"},
 	    AllowCredentials: true,
@@ -287,6 +289,26 @@ func notification(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 		city := q.Get("city")
 
 		result := service.SendNotification(state, city, entity.Message);
+
+		w.Header().Set("Content-Type", "application/json")
+
+		json.NewEncoder(w).Encode(result)
+
+	}
+
+}
+
+func savedEstimates(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+	auth := r.Header.Get("Authorization");
+
+	if auth != "65edc9b5-d134-4c8b-9be5-ee2c722f4a54" {
+
+		http.Error(w, "Auth failed", http.StatusUnauthorized)
+
+	}else{
+
+		result := repository.SumSavedEstimates();
 
 		w.Header().Set("Content-Type", "application/json")
 
