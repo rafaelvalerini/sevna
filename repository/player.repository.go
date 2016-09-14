@@ -21,17 +21,15 @@ func SavePlayer(entity model.Player) (model model.Player){
 
 	defer db.Close()
 
-	savePlayer(entity, db)
+	id := savePlayer(entity, db)
 
-	saveModality(entity.Modalities, entity.Id, db)
-
-	saveCoverage(entity.Modalities, entity.Id, db)	
+	saveModality(entity.Modalities, id, db)
 
 	return entity
 
 }
 
-func savePlayer(entity model.Player, db *sql.DB){
+func savePlayer(entity model.Player, db *sql.DB) (id int){
 	
 	if entity.Id > 0{
 
@@ -52,6 +50,8 @@ func savePlayer(entity model.Player, db *sql.DB){
 	    }
 	       
 	    defer stmtIns.Close()
+
+	    return entity.Id
 
 	}else{
 
@@ -83,6 +83,8 @@ func savePlayer(entity model.Player, db *sql.DB){
 
 	    entity.Id = int(playerId)
 
+	    return entity.Id;
+
 	}
 
 }
@@ -92,6 +94,24 @@ func saveModality(modalities []model.Modality, playerId int , db *sql.DB) {
 	for _,modality := range modalities {
 
 		modalityId,_ := strconv.Atoi(modality.Id)
+
+		stmtIns, err := db.Prepare("DELETE FROM modality_coverage WHERE id_modality = ? ");
+
+		if err != nil {
+
+	        panic(err.Error())
+
+	    }
+
+	    _, err = stmtIns.Exec(modality.Id)
+
+	    if err != nil {
+
+	    	panic(err.Error())
+
+	    }
+	       
+	    defer stmtIns.Close()
 
 		if modalityId > 0{
 
@@ -143,58 +163,38 @@ func saveModality(modalities []model.Modality, playerId int , db *sql.DB) {
 
 		    modality.Id = strconv.Itoa(int(id))
 		}
+
+		saveCoverage(modality, playerId, db)
 	}
 }
 
-func saveCoverage(modalities []model.Modality, playerId int , db *sql.DB) {
+func saveCoverage(modality model.Modality, playerId int , db *sql.DB) {
 	
-	for _,modality := range modalities {
+    if len(modality.ModalityCoverage) > 0 {
 
-		stmtIns, err := db.Prepare("DELETE FROM modality_coverage WHERE id_modality = ? ");
+    	for _,coverage := range modality.ModalityCoverage {
 
-		if err != nil {
+			stmtIns, err := db.Prepare("INSERT INTO modality_coverage (id_modality, zip_code_initial, zip_code_final) VALUES(?, ?, ?)");
 
-	        panic(err.Error())
+		    if err != nil {
 
-	    }
+		        panic(err.Error())
 
-	    _, err = stmtIns.Exec(modality.Id)
+		    }
 
-	    if err != nil {
+		    _, err = stmtIns.Exec(modality.Id, coverage.ZipCodeInitial, coverage.ZipCodeFinal)
 
-	    	panic(err.Error())
+		    if err != nil {
 
-	    }
-	       
-	    defer stmtIns.Close()
+		    	panic(err.Error())
 
-	    if len(modality.ModalityCoverage) > 0 {
+		    }
+		    
+		    defer stmtIns.Close()
+		
+		}
 
-	    	for _,coverage := range modality.ModalityCoverage {
-
-				stmtIns, err := db.Prepare("INSERT INTO modality_coverage (id_modality, zip_code_initial, zip_code_final) VALUES(?, ?, ?)");
-
-			    if err != nil {
-
-			        panic(err.Error())
-
-			    }
-
-			    _, err = stmtIns.Exec(modality.Id, coverage.ZipCodeInitial, coverage.ZipCodeFinal)
-
-			    if err != nil {
-
-			    	panic(err.Error())
-
-			    }
-			    
-			    defer stmtIns.Close()
-			
-			}
-
-	    }
-
-	}
+    }
 
 }
 

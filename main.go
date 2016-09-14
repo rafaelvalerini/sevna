@@ -38,9 +38,9 @@ func main() {
 
 	router.GET("/v1/players", findPlayers)
 
-	router.DELETE("/v1/player/:player", deletePlayer)
+	router.POST("/v1/player/:player/delete", deletePlayer)
 
-	router.DELETE("/v1/player/:player/modality/:modality", deleteModality)
+	router.POST("/v1/player/:player/modality/:modality/delete", deleteModality)
 
 	c := cors.New(cors.Options{
 	    AllowedOrigins: []string{"*"},
