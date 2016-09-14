@@ -9,6 +9,7 @@ import (
 	"github.com/rs/cors"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 func main() {
@@ -32,6 +33,14 @@ func main() {
 	router.GET("/v1/notification", notification)
 
 	router.GET("/v1/estimates/saved", savedEstimates)
+
+	router.POST("/v1/player", savePlayer)
+
+	router.GET("/v1/players", findPlayers)
+
+	router.DELETE("/v1/player/:player", deletePlayer)
+
+	router.DELETE("/v1/player/:player/modality/:modality", deleteModality)
 
 	c := cors.New(cors.Options{
 	    AllowedOrigins: []string{"*"},
@@ -309,6 +318,126 @@ func savedEstimates(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 	}else{
 
 		result := repository.SumSavedEstimates();
+
+		w.Header().Set("Content-Type", "application/json")
+
+		json.NewEncoder(w).Encode(result)
+
+	}
+
+}
+
+func savePlayer(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+	auth := r.Header.Get("Authorization");
+
+	entity := model.Player{}
+
+	json.NewDecoder(r.Body).Decode(&entity)
+
+	if auth != "65edc9b5-d134-4c8b-9be5-ee2c722f4a54" {
+
+		http.Error(w, "Auth failed", http.StatusUnauthorized)
+
+	}else if entity.Name == ""{
+
+		http.Error(w, "Name not found", http.StatusBadRequest)
+
+	}else{
+
+		repository.SavePlayer(entity);
+
+		w.Header().Set("Content-Type", "application/json")
+
+		json.NewEncoder(w).Encode(entity)
+
+	}
+
+}
+
+func deletePlayer(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+	auth := r.Header.Get("Authorization");
+
+	player, err := strconv.Atoi(ps.ByName("player"))
+
+	if err != nil {
+
+		http.Error(w, "Player not found", http.StatusBadRequest)
+
+	}
+
+	if auth != "65edc9b5-d134-4c8b-9be5-ee2c722f4a54" {
+
+		http.Error(w, "Auth failed", http.StatusUnauthorized)
+
+	}else if player <= 0{
+
+		http.Error(w, "Player not found", http.StatusBadRequest)
+
+	}else{
+
+		repository.DeletePlayer(int64(player));
+
+		w.Header().Set("Content-Type", "application/json")
+
+		json.NewEncoder(w).Encode(model.Meta{Value: "OK"})
+
+	}
+
+}
+
+func deleteModality(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+	auth := r.Header.Get("Authorization");
+
+	player, err := strconv.Atoi(ps.ByName("player"))
+
+	if err != nil {
+
+		http.Error(w, "Player not found", http.StatusBadRequest)
+
+	}
+
+	modality, err := strconv.Atoi(ps.ByName("modality"))
+
+	if err != nil {
+
+		http.Error(w, "Modality not found", http.StatusBadRequest)
+
+	}
+
+	if auth != "65edc9b5-d134-4c8b-9be5-ee2c722f4a54" {
+
+		http.Error(w, "Auth failed", http.StatusUnauthorized)
+
+	}else if player <= 0 || modality <= 0{
+
+		http.Error(w, "Player not found", http.StatusBadRequest)
+
+	}else{
+
+		repository.DeleteModality(int64(player), int64(modality));
+
+		w.Header().Set("Content-Type", "application/json")
+
+		json.NewEncoder(w).Encode(model.Meta{Value: "OK"})
+
+	}
+
+}
+
+func findPlayers(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+	auth := r.Header.Get("Authorization");
+
+	if auth != "65edc9b5-d134-4c8b-9be5-ee2c722f4a54" {
+
+		http.Error(w, "Auth failed", http.StatusUnauthorized)
+
+	}else{
+
+		result := repository.FindAllPlayers();
 
 		w.Header().Set("Content-Type", "application/json")
 

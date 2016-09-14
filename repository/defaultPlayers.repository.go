@@ -6,6 +6,7 @@ import(
 	"agregador/model"
 	"fmt"
 	"os"
+    "strconv"
 )
 
 func SearchPlayersDefault(position model.Position) (players []model.Player){
@@ -63,7 +64,7 @@ func SearchPlayersDefault(position model.Position) (players []model.Player){
     for rows.Next() {
         var idPlayer int
         var namePlayer string
-        var idModality string
+        var idModality int
         var nameModality string
         var priceKm float64
         var timeKm int
@@ -77,7 +78,7 @@ func SearchPlayersDefault(position model.Position) (players []model.Player){
                 Id: idPlayer, 
                 Name: namePlayer, 
                 Modality: model.Modality{
-                    Id: idModality, 
+                    Id: strconv.Itoa(idModality), 
                     Name: nameModality, 
                     PriceKm: priceKm, 
                     TimeKm: timeKm,

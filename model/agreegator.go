@@ -31,6 +31,7 @@ type Position struct{
 	District string `json:"district"`
 	City string `json:"city"`
 	State string `json:"state"`
+	ZipCode string `json:"zipcode"`
 }
 
 type Player struct{
@@ -41,6 +42,7 @@ type Player struct{
 	Price string `json:"price"`
 	Uuid string `json:"uuid"`
 	Multiplier float64 `json:"multiplier"`
+	Modalities []Modality `json:"modalities"`
 }
 
 type Modality struct{
@@ -50,7 +52,14 @@ type Modality struct{
 	Promotion Promotion `json:"promotion"`
 	PriceKm float64 `json:"price_km"`
 	TimeKm int `json:"time_km"`
+	ModalityCoverage []ModalityCoverage `json:"coverages"`
 }
+
+type ModalityCoverage struct{
+	ZipCodeInitial string `json:"zip_code_initial"`
+	ZipCodeFinal string `json:"zip_code_final"`
+}
+
 
 type Promotion struct{
 	Id string `json:"id"`
