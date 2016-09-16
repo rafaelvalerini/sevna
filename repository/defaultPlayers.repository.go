@@ -4,9 +4,8 @@ import(
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 	"agregador/model"
-	"fmt"
-	"os"
     "strconv"
+    "fmt"
 )
 
 func SearchPlayersDefault(position model.Position) (players []model.Player){
@@ -19,6 +18,8 @@ func SearchPlayersDefault(position model.Position) (players []model.Player){
 
 	}
 
+    fmt.Println(position.ZipCode);
+
 	rows, err := db.Query("select " + 
                             "p.id, " + 
                             "p.name, " + 
@@ -29,7 +30,11 @@ func SearchPlayersDefault(position model.Position) (players []model.Player){
                             "promo.id, " + 
                             "promo.name, " + 
                             "promo.off, " + 
-                            "promo.promotion_code " + 
+                            "promo.promotion_code, " + 
+                            "promo.initial_at, " + 
+                            "promo.final_at, " + 
+                            "promo.initial_hour, " + 
+                            "promo.final_hour " + 
                         "from " + 
                             "player p  " + 
                             "inner join modality m on p.id = m.id_player  " + 
@@ -39,25 +44,23 @@ func SearchPlayersDefault(position model.Position) (players []model.Player){
                                     "promo.name as name,  " + 
                                     "promo.off as off,  " + 
                                     "promo.promotion_code as promotion_code, " + 
-                                    "pm.id_modality as id_modality " + 
+                                    "pm.id_modality as id_modality, " +
+                                    "pm.initial_at as initial_at, " +
+                                    "pm.final_at as final_at, " +
+                                    "pm.initial_hour as initial_hour, " +
+                                    "pm.final_hour as final_hour " + 
                                 "from promotion_modality pm  " + 
                                     "left join promotion promo on promo.id = pm.id_promotion  " + 
                                     "left join promotion_modality_coverage pmc on pmc.id_promotion_modality = pm.id " + 
                                 "where  " + 
-                                    "promo.id is null or pmc.id is null or (pmc.state = ? and (pmc.city is null or pmc.city = ?)) " + 
+                                    "promo.id is null or pmc.id is null or (? between LEFT(pmc.zip_code_initial, 5) and LEFT(pmc.zip_code_final, 5)) " + 
                                     ") promo on promo.id_modality = m.id " + 
                         "where " + 
-                            "mc.state = ? " + 
-                            "and( " + 
-                                "mc.city is null " + 
-                                "or mc.city = ? " + 
-                            ")", position.State, position.City, position.State, position.City) 
+                            "? between LEFT(mc.zip_code_initial, 5) and LEFT(mc.zip_code_final, 5)", position.ZipCode, position.ZipCode) 
 
     if err != nil {
 
-       fmt.Println(err)
-
-        os.Exit(1)
+        panic(err);
 
     }
 
@@ -72,7 +75,11 @@ func SearchPlayersDefault(position model.Position) (players []model.Player){
         var namePromo string
         var off float64
         var promoCode string
-        err = rows.Scan(&idPlayer, &namePlayer, &idModality, &nameModality, &priceKm, &timeKm, &idPromo, &namePromo, &off, &promoCode)
+        var initialAt int64
+        var finalAt int64
+        var initialHour string
+        var finalHour string
+        err = rows.Scan(&idPlayer, &namePlayer, &idModality, &nameModality, &priceKm, &timeKm, &idPromo, &namePromo, &off, &promoCode, &initialAt, &finalAt, &initialHour, &finalHour)
 
         element := model.Player{
                 Id: idPlayer, 
@@ -87,6 +94,10 @@ func SearchPlayersDefault(position model.Position) (players []model.Player){
                         Name: namePromo,
                         Off: off,
                         PromotionCode: promoCode,
+                        StartDate: initialAt,
+                        EndDate: finalAt,
+                        StartHour: initialHour,
+                        EndHour: finalHour,
                     },
                 },
             }

@@ -1,5 +1,6 @@
 package model
 
+
 type Aggregator struct{
 	Id string `json:"id"`
 	Start Position  `json:"start"`
@@ -37,42 +38,47 @@ type Position struct{
 type Player struct{
 	Id int `json:"id"`
 	Name string `json:"name"`
-	Modality Modality `json:"modality"`
-	WaitingTime int `json:"waiting_time"`
-	Price string `json:"price"`
-	Uuid string `json:"uuid"`
-	Multiplier float64 `json:"multiplier"`
-	Modalities []Modality `json:"modalities"`
+	Modality Modality `json:"modality,omitempty"`
+	WaitingTime int `json:"waiting_time,omitempty"`
+	Price string `json:"price,omitempty"`
+	Uuid string `json:"uuid,omitempty"`
+	Multiplier float64 `json:"multiplier,omitempty"`
+	Modalities []Modality `json:"modalities,omitempty"`
 }
 
 type Modality struct{
-	Id string `json:"id"`
-	Name string `json:"name"`
-	Image string `json:"image"`
-	Promotion Promotion `json:"promotion"`
-	PriceKm float64 `json:"price_km"`
-	TimeKm int `json:"time_km"`
-	ModalityCoverage []ModalityCoverage `json:"coverages"`
+	Id string `json:"id,omitempty"`
+	Name string `json:"name,omitempty"`
+	Image string `json:"image,omitempty"`
+	Promotion Promotion `json:"promotion,omitempty"`
+	PriceKm float64 `json:"price_km,omitempty"`
+	TimeKm int `json:"time_km,omitempty"`
+	ModalityCoverage []Coverage `json:"coverages,omitempty"`
 }
 
-type ModalityCoverage struct{
-	ZipCodeInitial string `json:"zip_code_initial"`
-	ZipCodeFinal string `json:"zip_code_final"`
+type Coverage struct{
+	ZipCodeInitial string `json:"zip_code_initial,omitempty"`
+	ZipCodeFinal string `json:"zip_code_final,omitempty"`
 }
 
 
 type Promotion struct{
-	Id string `json:"id"`
-	Off float64 `json:"off"`
-	Name string `json:"name"`
-	PromotionCode string `json:"promotion_code"`
+	Id string `json:"id,omitempty"`
+	Off float64 `json:"off,omitempty"`
+	Name string `json:"name,omitempty"`
+	PromotionCode string `json:"promotion_code,omitempty"`
+	PromotionCoverages []Coverage `json:"coverages,omitempty"`
+	StartDate int64 `json:"initial_at,omitempty"`
+	EndDate int64 `json:"end_at,omitempty"`
+	StartHour string `json:"initial_hour,omitempty"`
+	EndHour string `json:"end_hour,omitempty"`
 }
 
 type MoreUser struct{
-	Modality string `json:"modality"`
-	Value int64 `json:"value"`
+	Modality string `json:"modality,omitempty"`
+	Value int64 `json:"value,omitempty"`
 }
 
 type Message struct{
-	Message string `json:"message"`
+	Message string `json:"message,omitempty"`
 }

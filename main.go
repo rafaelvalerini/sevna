@@ -42,6 +42,12 @@ func main() {
 
 	router.POST("/v1/player/:player/modality/:modality/delete", deleteModality)
 
+	router.POST("/v1/player/:player/modality/:modality/promotion", savePromotion)
+
+	router.POST("/v1/promotion/:promotion/delete", deletePromotion)
+
+	router.GET("/v1/player/:player/modality/:modality/promotions", findPromotion)
+
 	c := cors.New(cors.Options{
 	    AllowedOrigins: []string{"*"},
 	    AllowCredentials: true,
@@ -438,6 +444,126 @@ func findPlayers(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	}else{
 
 		result := repository.FindAllPlayers();
+
+		w.Header().Set("Content-Type", "application/json")
+
+		json.NewEncoder(w).Encode(result)
+
+	}
+
+}
+
+func savePromotion(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+	auth := r.Header.Get("Authorization");
+
+	entity := model.Promotion{}
+
+	json.NewDecoder(r.Body).Decode(&entity)
+
+	player, err := strconv.Atoi(ps.ByName("player"))
+
+	if err != nil {
+
+		http.Error(w, "Player not found", http.StatusBadRequest)
+
+	}
+
+	modality, err := strconv.Atoi(ps.ByName("modality"))
+
+	if err != nil {
+
+		http.Error(w, "Modality not found", http.StatusBadRequest)
+
+	}
+
+	if auth != "65edc9b5-d134-4c8b-9be5-ee2c722f4a54" {
+
+		http.Error(w, "Auth failed", http.StatusUnauthorized)
+
+	}else if entity.Name == ""{
+
+		http.Error(w, "Name not found", http.StatusBadRequest)
+
+	}else if player <= 0 || modality <= 0{
+
+		http.Error(w, "Player and Modality not found", http.StatusBadRequest)
+
+	}else{
+
+		repository.SavePromotion(entity, modality);
+
+		w.Header().Set("Content-Type", "application/json")
+
+		json.NewEncoder(w).Encode(entity)
+
+	}
+
+}
+
+func deletePromotion(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+	auth := r.Header.Get("Authorization");
+
+	promotion, err := strconv.Atoi(ps.ByName("promotion"))
+
+	if err != nil {
+
+		http.Error(w, "promotion not found", http.StatusBadRequest)
+
+	}
+
+	if auth != "65edc9b5-d134-4c8b-9be5-ee2c722f4a54" {
+
+		http.Error(w, "Auth failed", http.StatusUnauthorized)
+
+	}else if promotion <= 0{
+
+		http.Error(w, "Promotion not found", http.StatusBadRequest)
+
+	}else{
+
+		repository.DeletePromotion(promotion);
+
+		w.Header().Set("Content-Type", "application/json")
+
+		json.NewEncoder(w).Encode(model.Meta{Value: "OK"})
+
+	}
+
+}
+
+func findPromotion(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+	auth := r.Header.Get("Authorization");
+
+	player, err := strconv.Atoi(ps.ByName("player"))
+
+	if err != nil {
+
+		http.Error(w, "Player not found", http.StatusBadRequest)
+
+	}
+
+	modality, err := strconv.Atoi(ps.ByName("modality"))
+
+	if err != nil {
+
+		http.Error(w, "Modality not found", http.StatusBadRequest)
+
+	}
+
+	if auth != "65edc9b5-d134-4c8b-9be5-ee2c722f4a54" {
+
+		http.Error(w, "Auth failed", http.StatusUnauthorized)
+
+	}else if player <= 0 || modality <= 0{
+
+		http.Error(w, "Player and Modality not found", http.StatusBadRequest)
+
+	}else{
+
+		result := repository.FindPromotion(player, modality);
 
 		w.Header().Set("Content-Type", "application/json")
 

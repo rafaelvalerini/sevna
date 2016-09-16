@@ -306,17 +306,17 @@ func FindAllPlayers() (players []model.Player){
 
         	var playerExists model.Player
 
-        	for _,player := range players {
+        	for idx,_ := range players {
 
-        		if player.Id == playerId{
+        		if players[idx].Id == playerId{
 
-        			playerExists = player
+        			playerExists = players[idx]
 
         			var modalityExists model.Modality
 
         			if len(playerExists.Modalities) > 0 {
 
-        				for _,modality := range player.Modalities {
+        				for _,modality := range players[idx].Modalities {
 
         					if modality.Id == strconv.Itoa(modalityId) {
 
@@ -337,21 +337,38 @@ func FindAllPlayers() (players []model.Player){
         						Name: modalityName, 
         						PriceKm: modalityPrice, 
         						TimeKm: modalityTime, 
-        						ModalityCoverage: []model.ModalityCoverage{
-        							model.ModalityCoverage{
+        						ModalityCoverage: []model.Coverage{
+        							model.Coverage{
         								ZipCodeInitial: zipCodeInitial, 
         								ZipCodeFinal: zipCodeFinal,
         							},
         						},
         					}
 
-        					player.Modalities = append(player.Modalities, modalityExists);
+        					players[idx].Modalities = append(players[idx].Modalities, modalityExists);
 
         				}else{
 
-        					modalityExists.ModalityCoverage = append(modalityExists.ModalityCoverage, model.ModalityCoverage{ZipCodeInitial: zipCodeInitial, ZipCodeFinal: zipCodeFinal});
+        					modalityExists.ModalityCoverage = append(modalityExists.ModalityCoverage, model.Coverage{ZipCodeInitial: zipCodeInitial, ZipCodeFinal: zipCodeFinal});
 
         				}
+
+        			}else{
+
+        				modalityExists = model.Modality{
+    						Id: strconv.Itoa(modalityId), 
+    						Name: modalityName, 
+    						PriceKm: modalityPrice, 
+    						TimeKm: modalityTime, 
+    						ModalityCoverage: []model.Coverage{
+    							model.Coverage{
+    								ZipCodeInitial: zipCodeInitial, 
+    								ZipCodeFinal: zipCodeFinal,
+    							},
+    						},
+    					}
+
+        				players[idx].Modalities = append(players[idx].Modalities, modalityExists);
 
         			}
 
@@ -366,8 +383,8 @@ func FindAllPlayers() (players []model.Player){
 					Name: modalityName, 
 					PriceKm: modalityPrice, 
 					TimeKm: modalityTime, 
-					ModalityCoverage: []model.ModalityCoverage{
-						model.ModalityCoverage{
+					ModalityCoverage: []model.Coverage{
+						model.Coverage{
 							ZipCodeInitial: zipCodeInitial, 
 							ZipCodeFinal: zipCodeFinal,
 						},
@@ -379,13 +396,14 @@ func FindAllPlayers() (players []model.Player){
         	}
 
         }else{
+
         	modalityExists := model.Modality{
 				Id: strconv.Itoa(modalityId), 
 				Name: modalityName, 
 				PriceKm: modalityPrice, 
 				TimeKm: modalityTime, 
-				ModalityCoverage: []model.ModalityCoverage{
-					model.ModalityCoverage{
+				ModalityCoverage: []model.Coverage{
+					model.Coverage{
 						ZipCodeInitial: zipCodeInitial, 
 						ZipCodeFinal: zipCodeFinal,
 					},
@@ -393,6 +411,7 @@ func FindAllPlayers() (players []model.Player){
 			}
 
 			players = append(players, model.Player{Id: playerId, Name: playerName, Modalities: []model.Modality{modalityExists}});
+			
         }
 
     }

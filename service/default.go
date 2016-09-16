@@ -12,8 +12,6 @@ func GetEstimatesDefault(request model.RequestAggregator) (response []model.Play
 
     estimate := getEstimatesDefault(request.Start)
 
-    fmt.Println(len(estimate))
-
 	return processEstimatesDefault(request.Distance, estimate)
 
 }
