@@ -5,7 +5,6 @@ import(
 	_ "github.com/go-sql-driver/mysql"
 	"agregador/model"
     "strconv"
-    "fmt"
 )
 
 func SearchPlayersDefault(position model.Position) (players []model.Player){
@@ -17,8 +16,6 @@ func SearchPlayersDefault(position model.Position) (players []model.Player){
 	    panic(err)
 
 	}
-
-    fmt.Println(position.ZipCode);
 
 	rows, err := db.Query("select " + 
                             "p.id, " + 

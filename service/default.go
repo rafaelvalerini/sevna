@@ -26,7 +26,7 @@ func processEstimatesDefault(distance int64, estimate []model.Player) (response 
 
 		price := float64(distance/1000) * est.Modality.PriceKm
 
-		est.Price = fmt.Sprintf("R$%.2f", price)
+		est.Price = fmt.Sprintf("R$%.0f-%.0f", price, price + (price * 20 / 100))
 
 		est.WaitingTime = est.Modality.TimeKm
 

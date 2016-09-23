@@ -13,9 +13,11 @@ import (
 )
 
 const (
-	CABIFY_DOMAIN = "https://test.cabify.com"
+	//CABIFY_DOMAIN_HML = "https://test.cabify.com"
+	//CABIFY_SERVER_TOKEN_HML = "Bearer fLqDw9wj_upqf1FOXSXSJ_UrFL643eSHZwai0M4sBVE"
+	CABIFY_DOMAIN = "https://cabify.com"
 	CABIFY_URL_ESTIMATE = "/api/v2/estimate"
-	CABIFY_SERVER_TOKEN = "Bearer fLqDw9wj_upqf1FOXSXSJ_UrFL643eSHZwai0M4sBVE"
+	CABIFY_SERVER_TOKEN = "Bearer EYa4WcYJ74sN43vTJZUSpYmeNBm7HYVo8hSZQplYvg8"
 	CABIFY_HEADER_AUTH = "Authorization"
 	CABIFY_HEADER_CONTENT = "Content-Type" 
 	CABIFY_CONTENT_JSON = "application/json"
@@ -31,7 +33,11 @@ func GetEstimatesCabify(start_lat float64, start_lng float64, end_lat float64, e
 
 func processEstimatesCabify(estimate model.ResponseCabify) (response []model.Player){
 	
+	time := 420
+
 	for  _,est := range estimate {
+
+		time = time + 60
 
 		m := model.Player{}
 
@@ -54,6 +60,8 @@ func processEstimatesCabify(estimate model.ResponseCabify) (response []model.Pla
 		m.Modality = modality
 
 		m.Price = est.FormattedPrice
+
+		m.WaitingTime = time
 
 		response = append(response, m)
 
