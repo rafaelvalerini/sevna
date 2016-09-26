@@ -23,6 +23,9 @@ func SearchPlayersDefault(position model.Position) (players []model.Player){
                             "m.id, " + 
                             "m.name, " + 
                             "m.price_km, " + 
+                            "m.price_base, " + 
+                            "m.price_time, " +
+                            "m.minimum_price, " +  
                             "m.time_km, " + 
                             "promo.id, " + 
                             "promo.name, " + 
@@ -67,6 +70,9 @@ func SearchPlayersDefault(position model.Position) (players []model.Player){
         var idModality int
         var nameModality string
         var priceKm float64
+        var priceBase float64
+        var priceTime float64
+        var priceMinimum float64
         var timeKm int
         var idPromo string
         var namePromo string
@@ -76,7 +82,7 @@ func SearchPlayersDefault(position model.Position) (players []model.Player){
         var finalAt int64
         var initialHour string
         var finalHour string
-        err = rows.Scan(&idPlayer, &namePlayer, &idModality, &nameModality, &priceKm, &timeKm, &idPromo, &namePromo, &off, &promoCode, &initialAt, &finalAt, &initialHour, &finalHour)
+        err = rows.Scan(&idPlayer, &namePlayer, &idModality, &nameModality, &priceKm, &priceBase, &priceTime, &priceMinimum, &timeKm, &idPromo, &namePromo, &off, &promoCode, &initialAt, &finalAt, &initialHour, &finalHour)
 
         element := model.Player{
                 Id: idPlayer, 
@@ -85,6 +91,9 @@ func SearchPlayersDefault(position model.Position) (players []model.Player){
                     Id: strconv.Itoa(idModality), 
                     Name: nameModality, 
                     PriceKm: priceKm, 
+                    PriceBase: priceBase, 
+                    PriceTime: priceTime, 
+                    PriceMinimum: priceMinimum, 
                     TimeKm: timeKm,
                     Promotion: model.Promotion{
                         Id: idPromo,

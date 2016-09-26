@@ -54,6 +54,9 @@ type Modality struct{
 	PriceKm float64 `json:"price_km,omitempty"`
 	TimeKm int `json:"time_km,omitempty"`
 	ModalityCoverage []Coverage `json:"coverages,omitempty"`
+	PriceTime float64 `json:"price_time,omitempty"`
+	PriceBase float64 `json:"price_base,omitempty"`
+	PriceMinimum float64 `json:"price_minimum,omitempty"`
 }
 
 type Coverage struct{

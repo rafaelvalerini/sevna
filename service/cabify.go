@@ -99,6 +99,10 @@ func getEstimates(start_lat float64, start_lng float64, end_lat float64, end_lng
 
 	defer resp.Body.Close()
 
+	if err != nil {
+ 		return model.ResponseCabify{}
+ 	}
+
  	htmlData, err := ioutil.ReadAll(resp.Body) 
 
  	if err != nil {

@@ -115,7 +115,7 @@ func saveModality(modalities []model.Modality, playerId int , db *sql.DB) {
 
 		if modalityId > 0{
 
-			stmtIns, err := db.Prepare("UPDATE modality SET name=?, price_km=?, time_km=? WHERE id=?");
+			stmtIns, err := db.Prepare("UPDATE modality SET name=?, price_km=?, time_km=?, price_base=?, price_time = ?, minimum_price = ? WHERE id=?");
 
 		    if err != nil {
 
@@ -123,7 +123,7 @@ func saveModality(modalities []model.Modality, playerId int , db *sql.DB) {
 
 		    }
 
-		    _, err = stmtIns.Exec(modality.Name, modality.PriceKm, modality.TimeKm, modality.Id)
+		    _, err = stmtIns.Exec(modality.Name, modality.PriceKm, modality.TimeKm, modality.PriceBase, modality.PriceTime, modality.PriceMinimum, modality.Id)
 
 		    if err != nil {
 
@@ -135,7 +135,7 @@ func saveModality(modalities []model.Modality, playerId int , db *sql.DB) {
 
 		}else{
 			
-			stmtIns, err := db.Prepare("INSERT INTO modality (name, price_km, time_km, id_player) VALUES(?, ?, ?, ?)");
+			stmtIns, err := db.Prepare("INSERT INTO modality (name, price_km, time_km, id_player, price_base, price_time, minimum_price) VALUES(?, ?, ?, ?, ?, ?, ?)");
 
 		    if err != nil {
 
@@ -143,7 +143,7 @@ func saveModality(modalities []model.Modality, playerId int , db *sql.DB) {
 
 		    }
 
-		    res, err := stmtIns.Exec(modality.Name, modality.PriceKm, modality.TimeKm, playerId)
+		    res, err := stmtIns.Exec(modality.Name, modality.PriceKm, modality.TimeKm, playerId, modality.PriceBase, modality.PriceTime, modality.PriceMinimum)
 
 		    if err != nil {
 
@@ -268,7 +268,7 @@ func FindAllPlayers() (players []model.Player){
 
 	}
 
-	rows, err := db.Query("select p.id, p.name, m.id, m.name, m.price_km, m.time_km, mc.zip_code_initial, mc.zip_code_final " + 
+	rows, err := db.Query("select p.id, p.name, m.id, m.name, m.price_km, m.time_km, mc.zip_code_initial, mc.zip_code_final, m.price_base, m.price_time, m.minimum_price " + 
 							"from player p " +
 								"left join modality m on p.id = m.id_player " +
 								"left join modality_coverage mc on m.id = mc.id_modality " +
@@ -300,7 +300,13 @@ func FindAllPlayers() (players []model.Player){
     	
     	var zipCodeFinal string
 
-        err = rows.Scan(&playerId, &playerName, &modalityId, &modalityName, &modalityPrice, &modalityTime, &zipCodeInitial, &zipCodeFinal)
+    	var priceBase float64
+        
+        var priceTime float64
+        
+        var priceMinimum float64
+
+        err = rows.Scan(&playerId, &playerName, &modalityId, &modalityName, &modalityPrice, &modalityTime, &zipCodeInitial, &zipCodeFinal, &priceBase, &priceTime, &priceMinimum)
 
         if len(players) > 0{
 
@@ -337,6 +343,9 @@ func FindAllPlayers() (players []model.Player){
         						Name: modalityName, 
         						PriceKm: modalityPrice, 
         						TimeKm: modalityTime, 
+        						PriceBase: priceBase, 
+			                    PriceTime: priceTime, 
+			                    PriceMinimum: priceMinimum, 
         						ModalityCoverage: []model.Coverage{
         							model.Coverage{
         								ZipCodeInitial: zipCodeInitial, 
@@ -360,6 +369,9 @@ func FindAllPlayers() (players []model.Player){
     						Name: modalityName, 
     						PriceKm: modalityPrice, 
     						TimeKm: modalityTime, 
+    						PriceBase: priceBase, 
+		                    PriceTime: priceTime, 
+		                    PriceMinimum: priceMinimum, 
     						ModalityCoverage: []model.Coverage{
     							model.Coverage{
     								ZipCodeInitial: zipCodeInitial, 
@@ -383,6 +395,9 @@ func FindAllPlayers() (players []model.Player){
 					Name: modalityName, 
 					PriceKm: modalityPrice, 
 					TimeKm: modalityTime, 
+					PriceBase: priceBase, 
+                    PriceTime: priceTime, 
+                    PriceMinimum: priceMinimum, 
 					ModalityCoverage: []model.Coverage{
 						model.Coverage{
 							ZipCodeInitial: zipCodeInitial, 
@@ -402,6 +417,9 @@ func FindAllPlayers() (players []model.Player){
 				Name: modalityName, 
 				PriceKm: modalityPrice, 
 				TimeKm: modalityTime, 
+				PriceBase: priceBase, 
+                PriceTime: priceTime, 
+                PriceMinimum: priceMinimum, 
 				ModalityCoverage: []model.Coverage{
 					model.Coverage{
 						ZipCodeInitial: zipCodeInitial, 
