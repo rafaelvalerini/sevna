@@ -77,7 +77,7 @@ func getEstimates(start_lat float64, start_lng float64, end_lat float64, end_lng
 	
 	client := &http.Client{}
 
-	request := model.RequestCabify{StartAt: "2022-12-30 22:59", Stop: []model.Stop{model.Stop{Loc: []float64{start_lat, start_lng}}, model.Stop{Loc: []float64{end_lat, end_lng}}}}
+	request := model.RequestCabify{Stop: []model.Stop{model.Stop{Loc: []float64{start_lat, start_lng}}, model.Stop{Loc: []float64{end_lat, end_lng}}}}
 
 	b := new(bytes.Buffer)
 

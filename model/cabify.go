@@ -22,7 +22,6 @@ type ResponseCabify []struct {
 
 type RequestCabify struct {
 	Stop []Stop `json:"stops"`
-	StartAt string `json:"start_at"`
 }
 
 type Stop struct{
