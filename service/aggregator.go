@@ -60,7 +60,7 @@ func AgregateAll(request model.RequestAggregator) (agregator model.Aggregator){
 
         defer wg.Done()
 
-		defaults := GetEstimatesDefault(request)
+		defaults := GetEstimates99TaxiAndEasy(request.Start.Lat, request.Start.Lng, request.End.Lat, request.End.Lng, request.Duration, request.Distance)
 
 		for _,element := range defaults {
 			aggregate.Players = append(aggregate.Players, element)

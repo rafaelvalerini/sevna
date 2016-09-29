@@ -15,6 +15,8 @@ import (
 func main() {
 
 	router := httprouter.New()
+
+	router.GET("/v1/ping", pong)
 	
 	router.POST("/v1/estimates", estimate)
 
@@ -57,6 +59,14 @@ func main() {
 	handler := c.Handler(router)
 
 	log.Fatal(http.ListenAndServe(":8080", handler))
+
+}
+
+func pong(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+	w.Header().Set("Content-Type", "application/json")
+
+	json.NewEncoder(w).Encode("pong")
 
 }
 
