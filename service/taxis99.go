@@ -17,20 +17,20 @@ const (
 	TAXIS99_HEADER_USER_ID = "X-User-Id"
 	TAXIS99_HEADER_USER_ID_VALUE = "10878359"
 	TAXIS99_HEADER_USER_UUID = "X-User-UUID"
-	TAXIS99_HEADER_USER_UUID_VALUE = "febed95f-239a-41c1-a76c-7ca9747c8f1b"
+	TAXIS99_HEADER_USER_UUID_VALUE = ""
 	TAXIS99_HEADER_CONTENT = "Content-Type" 
 	TAXIS99_CONTENT_JSON = "application/json"
 )
 
-func GetEstimates99TaxiAndEasy(start_lat float64, start_lng float64, end_lat float64, end_lng float64, duration int64, distance int64) (response []model.Player){
+func GetEstimates99TaxiAndEasy(start_lat float64, start_lng float64, end_lat float64, end_lng float64, duration int64, distance int64, player99 model.Player, playerEasy model.Player) (response []model.Player){
 
-    estimate := getEstimates99(start_lat, start_lng, end_lat, end_lng, duration, distance)
+    estimate := getEstimates99(start_lat, start_lng, end_lat, end_lng, duration, distance, player99)
 
-	return processEstimates99Taxi(estimate)
+	return processEstimates99Taxi(estimate, player99, playerEasy)
 
 }
 
-func processEstimates99Taxi(estimate model.Response99Taxi) (response []model.Player){
+func processEstimates99Taxi(estimate model.Response99Taxi, player99 model.Player, playerEasy model.Player) (response []model.Player){
 	
 	time := 420
 
@@ -40,7 +40,7 @@ func processEstimates99Taxi(estimate model.Response99Taxi) (response []model.Pla
 
 		m := model.Player{}
 
-		uuid, _ := exec.Command("uuidgen").Output()
+		uuid,_ := exec.Command("uuidgen").Output()
 
 		m.Uuid = strings.Replace(string(uuid[:]),"\n","",-1)
 
@@ -50,7 +50,9 @@ func processEstimates99Taxi(estimate model.Response99Taxi) (response []model.Pla
 
 		modality := model.Modality{}
 
-		modality.Id = est.CategoryID
+		uuid2,_ := exec.Command("uuidgen").Output()
+
+		modality.Id = strings.Replace(string(uuid2[:]),"\n","",-1)
 
 		switch est.CategoryID{
 		    case "pop99" :
@@ -71,21 +73,87 @@ func processEstimates99Taxi(estimate model.Response99Taxi) (response []model.Pla
 		        break
 	    }
 
+	    modal := GetModalityByName(player99.Modalities, modality.Name)
+
+		if modal.Name == "" || modal.Active == 0 || player99.Active == 0{
+
+			continue
+
+		}
+
 		m.Modality = modality
 
 		m.Price = "R$" + est.LowerFare + "-" + est.UpperFare
 
 		response = append(response, m)
 
+		playerEasyReturn := getEasy(m, playerEasy)
+
+		if playerEasyReturn.Id == 0{
+
+			continue
+
+		}else{
+
+			response = append(response, playerEasyReturn);
+
+		}
+
 	}
 
-
 	return response
+
 }
 
+func getEasy(m model.Player, playerEasy model.Player) (playerReturn model.Player){
+	
+	playerResult := model.Player{}
 
+	playerResult.Id = 4
 
-func getEstimates99(start_lat float64, start_lng float64, end_lat float64, end_lng float64, duration int64, distance int64) (response model.Response99Taxi){
+	playerResult.Name = "EASY TAXI"
+
+	uuid,_ := exec.Command("uuidgen").Output()
+
+	playerResult.Uuid = strings.Replace(string(uuid[:]),"\n","",-1)
+
+	uuid2,_ := exec.Command("uuidgen").Output()
+
+	playerResult.Modality.Id = strings.Replace(string(uuid2[:]),"\n","",-1)
+
+	playerResult.Price = m.Price
+
+	switch m.Modality.Name{
+	    case "99POP" :
+	        playerResult.Modality.Name = "Easy Go"
+	        playerResult.WaitingTime = 300
+	        break
+	    case "Táxi":
+	        playerResult.Modality.Name = "EasyTaxi"
+	        playerResult.WaitingTime = 360
+	        break
+	    case "99TOP":
+	        playerResult.Modality.Name = "EasyPlus+"
+	        playerResult.WaitingTime = 300
+	        break
+	   	case "Táxi 30% OFF":
+	        playerResult.Modality.Name = "EasyTaxi 30% OFF"
+	        playerResult.WaitingTime = 240
+	        break
+	}
+
+	modal := GetModalityByName(playerEasy.Modalities, playerResult.Modality.Name)
+
+	if modal.Name == "" || modal.Active == 0 || playerEasy.Active == 0{
+
+		return playerReturn
+
+	}
+
+	return playerResult
+}
+
+func getEstimates99(start_lat float64, start_lng float64, end_lat float64, end_lng float64, duration int64, distance int64, player99 model.Player) (response model.Response99Taxi){
 	
 	client := &http.Client{}
 
@@ -112,17 +180,17 @@ func getEstimates99(start_lat float64, start_lng float64, end_lat float64, end_l
 
 	req.Header.Add(TAXIS99_HEADER_USER_ID, TAXIS99_HEADER_USER_ID_VALUE)
 
-	req.Header.Add(TAXIS99_HEADER_USER_UUID, TAXIS99_HEADER_USER_UUID_VALUE)
+	req.Header.Add(TAXIS99_HEADER_USER_UUID, player99.Token)
 
 	req.Header.Add(TAXIS99_HEADER_CONTENT, CABIFY_CONTENT_JSON)
 
 	resp, err := client.Do(req)
 
-	defer resp.Body.Close()
-
 	if err != nil {
  		return model.Response99Taxi{}
  	}
+
+	defer resp.Body.Close()
 
  	htmlData, err := ioutil.ReadAll(resp.Body) 
 

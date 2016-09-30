@@ -34,7 +34,11 @@ func SearchPlayersDefault(position model.Position) (players []model.Player){
                             "promo.initial_at, " + 
                             "promo.final_at, " + 
                             "promo.initial_hour, " + 
-                            "promo.final_hour " + 
+                            "promo.final_hour, " + 
+                            "p.active, " + 
+                            "m.active, " + 
+                            "m.edit_values, " + 
+                            "p.token " + 
                         "from " + 
                             "player p  " + 
                             "inner join modality m on p.id = m.id_player  " + 
@@ -82,11 +86,17 @@ func SearchPlayersDefault(position model.Position) (players []model.Player){
         var finalAt int64
         var initialHour string
         var finalHour string
-        err = rows.Scan(&idPlayer, &namePlayer, &idModality, &nameModality, &priceKm, &priceBase, &priceTime, &priceMinimum, &timeKm, &idPromo, &namePromo, &off, &promoCode, &initialAt, &finalAt, &initialHour, &finalHour)
+        var activePlayer int
+        var activeModality int
+        var editValues int
+        var token string
+        err = rows.Scan(&idPlayer, &namePlayer, &idModality, &nameModality, &priceKm, &priceBase, &priceTime, &priceMinimum, &timeKm, &idPromo, &namePromo, &off, &promoCode, &initialAt, &finalAt, &initialHour, &finalHour, &activePlayer, &activeModality, &editValues, &token)
 
         element := model.Player{
                 Id: idPlayer, 
                 Name: namePlayer, 
+                Active: activePlayer,
+                Token: token,
                 Modality: model.Modality{
                     Id: strconv.Itoa(idModality), 
                     Name: nameModality, 
@@ -95,6 +105,8 @@ func SearchPlayersDefault(position model.Position) (players []model.Player){
                     PriceTime: priceTime, 
                     PriceMinimum: priceMinimum, 
                     TimeKm: timeKm,
+                    Active: activeModality,
+                    EditValues: editValues,
                     Promotion: model.Promotion{
                         Id: idPromo,
                         Name: namePromo,

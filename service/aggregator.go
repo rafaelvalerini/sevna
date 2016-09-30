@@ -26,17 +26,20 @@ func AgregateAll(request model.RequestAggregator) (agregator model.Aggregator){
 		Id: strings.Replace(string(uuid[:]),"\n","",-1),
 	}
 
+	players := repository.FindAllPlayers()
+
 	runtime.GOMAXPROCS(3)
 
 	var wg sync.WaitGroup
 
     wg.Add(3)
 
-
  	go func() {
         defer wg.Done()
 
-		ubbers := GetEstimatesUber(request.Start.Lat, request.Start.Lng, request.End.Lat, request.End.Lng)
+        playerUber := GetPlayer(players, 1);
+
+		ubbers := GetEstimatesUber(request.Start.Lat, request.Start.Lng, request.End.Lat, request.End.Lng, playerUber)
 
 		for _,element := range ubbers {
 			aggregate.Players = append(aggregate.Players, element)
@@ -48,7 +51,9 @@ func AgregateAll(request model.RequestAggregator) (agregator model.Aggregator){
 
         defer wg.Done()
 
-		cabifys := GetEstimatesCabify(request.Start.Lat, request.Start.Lng, request.End.Lat, request.End.Lng)
+        playerCabify := GetPlayer(players, 2);
+
+		cabifys := GetEstimatesCabify(request.Start.Lat, request.Start.Lng, request.End.Lat, request.End.Lng, playerCabify)
 
 		for _,element := range cabifys {
 			aggregate.Players = append(aggregate.Players, element)
@@ -60,7 +65,11 @@ func AgregateAll(request model.RequestAggregator) (agregator model.Aggregator){
 
         defer wg.Done()
 
-		defaults := GetEstimates99TaxiAndEasy(request.Start.Lat, request.Start.Lng, request.End.Lat, request.End.Lng, request.Duration, request.Distance)
+        player99 := GetPlayer(players, 3);
+
+        playerEasy := GetPlayer(players, 4);
+
+		defaults := GetEstimates99TaxiAndEasy(request.Start.Lat, request.Start.Lng, request.End.Lat, request.End.Lng, request.Duration, request.Distance, player99, playerEasy)
 
 		for _,element := range defaults {
 			aggregate.Players = append(aggregate.Players, element)
@@ -77,4 +86,21 @@ func AgregateAll(request model.RequestAggregator) (agregator model.Aggregator){
 	}()
 
 	return aggregate
+}
+
+
+func GetModality(modalities []model.Modality, name string) (modality model.Modality){
+
+	for _,mo := range modalities {
+
+		if mo.Name == name{
+
+			return mo
+
+		}
+		
+	}
+
+	return modality
+
 }

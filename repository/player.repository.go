@@ -4,7 +4,6 @@ import(
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 	"fmt"
-	"os"
 	"agregador/model"
 	"strconv"
 )
@@ -33,7 +32,7 @@ func savePlayer(entity model.Player, db *sql.DB) (id int){
 	
 	if entity.Id > 0{
 
-		stmtIns, err := db.Prepare("UPDATE player SET name = ? where id = ?");
+		stmtIns, err := db.Prepare("UPDATE player SET name = ?, active = ? where id = ?");
 
 	    if err != nil {
 
@@ -41,7 +40,7 @@ func savePlayer(entity model.Player, db *sql.DB) (id int){
 
 	    }
 
-	    _, err = stmtIns.Exec(entity.Name, entity.Id)
+	    _, err = stmtIns.Exec(entity.Name, entity.Active, entity.Id)
 
 	    if err != nil {
 
@@ -55,7 +54,7 @@ func savePlayer(entity model.Player, db *sql.DB) (id int){
 
 	}else{
 
-		stmtIns, err := db.Prepare("INSERT INTO player (name) VALUES(?)");
+		stmtIns, err := db.Prepare("INSERT INTO player (name, active) VALUES(?,?)");
 
 	    if err != nil {
 
@@ -63,7 +62,7 @@ func savePlayer(entity model.Player, db *sql.DB) (id int){
 
 	    }
 
-	    res, err := stmtIns.Exec(entity.Name)
+	    res, err := stmtIns.Exec(entity.Name, entity.Active)
 
 	    if err != nil {
 
@@ -115,7 +114,7 @@ func saveModality(modalities []model.Modality, playerId int , db *sql.DB) {
 
 		if modalityId > 0{
 
-			stmtIns, err := db.Prepare("UPDATE modality SET name=?, price_km=?, time_km=?, price_base=?, price_time = ?, minimum_price = ? WHERE id=?");
+			stmtIns, err := db.Prepare("UPDATE modality SET name=?, price_km=?, time_km=?, price_base=?, price_time = ?, minimum_price = ?, active = ?, edit_values = ? WHERE id=?");
 
 		    if err != nil {
 
@@ -123,7 +122,7 @@ func saveModality(modalities []model.Modality, playerId int , db *sql.DB) {
 
 		    }
 
-		    _, err = stmtIns.Exec(modality.Name, modality.PriceKm, modality.TimeKm, modality.PriceBase, modality.PriceTime, modality.PriceMinimum, modality.Id)
+		    _, err = stmtIns.Exec(modality.Name, modality.PriceKm, modality.TimeKm, modality.PriceBase, modality.PriceTime, modality.PriceMinimum, modality.Active, modality.EditValues, modality.Id)
 
 		    if err != nil {
 
@@ -135,7 +134,7 @@ func saveModality(modalities []model.Modality, playerId int , db *sql.DB) {
 
 		}else{
 			
-			stmtIns, err := db.Prepare("INSERT INTO modality (name, price_km, time_km, id_player, price_base, price_time, minimum_price) VALUES(?, ?, ?, ?, ?, ?, ?)");
+			stmtIns, err := db.Prepare("INSERT INTO modality (name, price_km, time_km, id_player, price_base, price_time, minimum_price, active, edit_values) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)");
 
 		    if err != nil {
 
@@ -143,7 +142,7 @@ func saveModality(modalities []model.Modality, playerId int , db *sql.DB) {
 
 		    }
 
-		    res, err := stmtIns.Exec(modality.Name, modality.PriceKm, modality.TimeKm, playerId, modality.PriceBase, modality.PriceTime, modality.PriceMinimum)
+		    res, err := stmtIns.Exec(modality.Name, modality.PriceKm, modality.TimeKm, playerId, modality.PriceBase, modality.PriceTime, modality.PriceMinimum, modality.Active, modality.EditValues)
 
 		    if err != nil {
 
@@ -268,17 +267,16 @@ func FindAllPlayers() (players []model.Player){
 
 	}
 
-	rows, err := db.Query("select p.id, p.name, m.id, m.name, m.price_km, m.time_km, mc.zip_code_initial, mc.zip_code_final, m.price_base, m.price_time, m.minimum_price " + 
+	rows, err := db.Query("select p.id, p.name, m.id, m.name, m.price_km, m.time_km, mc.zip_code_initial, mc.zip_code_final, m.price_base, m.price_time, m.minimum_price, p.active, m.active, m.edit_values, p.token  " + 
 							"from player p " +
 								"left join modality m on p.id = m.id_player " +
-								"left join modality_coverage mc on m.id = mc.id_modality " +
-							"where p.id not in (1,2)") 
+								"left join modality_coverage mc on m.id = mc.id_modality ") 
 
     if err != nil {
 
        fmt.Println(err)
 
-        os.Exit(1)
+       return players
 
     }
 
@@ -296,9 +294,9 @@ func FindAllPlayers() (players []model.Player){
     	
     	var modalityTime int
     	
-    	var zipCodeInitial string
+    	var zipCodeInitial []byte
     	
-    	var zipCodeFinal string
+    	var zipCodeFinal []byte
 
     	var priceBase float64
         
@@ -306,7 +304,47 @@ func FindAllPlayers() (players []model.Player){
         
         var priceMinimum float64
 
-        err = rows.Scan(&playerId, &playerName, &modalityId, &modalityName, &modalityPrice, &modalityTime, &zipCodeInitial, &zipCodeFinal, &priceBase, &priceTime, &priceMinimum)
+        var activePlayer int
+
+        var activeModality int
+
+        var editValues int
+
+        var token string
+
+        err = rows.Scan(&playerId, &playerName, &modalityId, &modalityName, &modalityPrice, &modalityTime, &zipCodeInitial, &zipCodeFinal, &priceBase, &priceTime, &priceMinimum, &activePlayer, &activeModality, &editValues, &token)
+
+        if err != nil{
+
+        	fmt.Println(err)
+
+       		return players
+
+        }
+
+        var zipCodeFinalAux string
+
+        if zipCodeFinal != nil{
+
+        	zipCodeFinalAux = string(zipCodeFinal) 
+
+        }else{
+
+        	zipCodeFinalAux = "" 
+
+        }
+
+        var zipCodeInitialAux string
+
+        if zipCodeInitial != nil{
+
+        	zipCodeInitialAux = string(zipCodeInitial) 
+
+        }else{
+
+        	zipCodeInitialAux = "" 
+
+        }
 
         if len(players) > 0{
 
@@ -346,10 +384,12 @@ func FindAllPlayers() (players []model.Player){
         						PriceBase: priceBase, 
 			                    PriceTime: priceTime, 
 			                    PriceMinimum: priceMinimum, 
+			                    Active: activeModality,
+                				EditValues: editValues,
         						ModalityCoverage: []model.Coverage{
         							model.Coverage{
-        								ZipCodeInitial: zipCodeInitial, 
-        								ZipCodeFinal: zipCodeFinal,
+        								ZipCodeInitial: zipCodeInitialAux, 
+        								ZipCodeFinal: zipCodeFinalAux,
         							},
         						},
         					}
@@ -358,7 +398,7 @@ func FindAllPlayers() (players []model.Player){
 
         				}else{
 
-        					modalityExists.ModalityCoverage = append(modalityExists.ModalityCoverage, model.Coverage{ZipCodeInitial: zipCodeInitial, ZipCodeFinal: zipCodeFinal});
+        					modalityExists.ModalityCoverage = append(modalityExists.ModalityCoverage, model.Coverage{ZipCodeInitial: zipCodeInitialAux, ZipCodeFinal: zipCodeFinalAux});
 
         				}
 
@@ -372,10 +412,12 @@ func FindAllPlayers() (players []model.Player){
     						PriceBase: priceBase, 
 		                    PriceTime: priceTime, 
 		                    PriceMinimum: priceMinimum, 
+		                     Active: activeModality,
+                			EditValues: editValues,
     						ModalityCoverage: []model.Coverage{
     							model.Coverage{
-    								ZipCodeInitial: zipCodeInitial, 
-    								ZipCodeFinal: zipCodeFinal,
+    								ZipCodeInitial: zipCodeInitialAux, 
+    								ZipCodeFinal: zipCodeFinalAux,
     							},
     						},
     					}
@@ -398,15 +440,17 @@ func FindAllPlayers() (players []model.Player){
 					PriceBase: priceBase, 
                     PriceTime: priceTime, 
                     PriceMinimum: priceMinimum, 
+                    Active: activeModality,
+                	EditValues: editValues,
 					ModalityCoverage: []model.Coverage{
 						model.Coverage{
-							ZipCodeInitial: zipCodeInitial, 
-							ZipCodeFinal: zipCodeFinal,
+							ZipCodeInitial: zipCodeInitialAux, 
+							ZipCodeFinal: zipCodeFinalAux,
 						},
 					},
 				}
 
-				players = append(players, model.Player{Id: playerId, Name: playerName, Modalities: []model.Modality{modalityExists}});
+				players = append(players, model.Player{Id: playerId, Name: playerName, Active: activePlayer, Token: token, Modalities: []model.Modality{modalityExists}});
 
         	}
 
@@ -420,15 +464,17 @@ func FindAllPlayers() (players []model.Player){
 				PriceBase: priceBase, 
                 PriceTime: priceTime, 
                 PriceMinimum: priceMinimum, 
+                Active: activeModality,
+                EditValues: editValues,
 				ModalityCoverage: []model.Coverage{
 					model.Coverage{
-						ZipCodeInitial: zipCodeInitial, 
-						ZipCodeFinal: zipCodeFinal,
+						ZipCodeInitial: zipCodeInitialAux, 
+						ZipCodeFinal: zipCodeFinalAux,
 					},
 				},
 			}
 
-			players = append(players, model.Player{Id: playerId, Name: playerName, Modalities: []model.Modality{modalityExists}});
+			players = append(players, model.Player{Id: playerId, Name: playerName, Active: activePlayer, Token: token, Modalities: []model.Modality{modalityExists}});
 			
         }
 

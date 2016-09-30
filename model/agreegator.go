@@ -44,6 +44,8 @@ type Player struct{
 	Uuid string `json:"uuid,omitempty"`
 	Multiplier float64 `json:"multiplier,omitempty"`
 	Modalities []Modality `json:"modalities,omitempty"`
+	Active int `json:"active,omitempty"`
+	Token string `json:"token,omitempty"`
 }
 
 type Modality struct{
@@ -57,6 +59,8 @@ type Modality struct{
 	PriceTime float64 `json:"price_time,omitempty"`
 	PriceBase float64 `json:"price_base,omitempty"`
 	PriceMinimum float64 `json:"price_minimum,omitempty"`
+	Active int `json:"active,omitempty"`
+	EditValues int `json:"edit_values,omitempty"`
 }
 
 type Coverage struct{
