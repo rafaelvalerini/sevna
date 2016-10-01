@@ -66,19 +66,35 @@ type Modality struct{
 type Coverage struct{
 	ZipCodeInitial string `json:"zip_code_initial,omitempty"`
 	ZipCodeFinal string `json:"zip_code_final,omitempty"`
+	City string `json:"city,omitempty"`
+	State string `json:"state,omitempty"`
 }
 
+type Available struct{
+	Id int `json:"id,omitempty"`
+	Monday int `json:"Monday,omitempty"`
+	Tuesday int `json:"Tuesday,omitempty"`
+	Wednesday int `json:"Wednesday,omitempty"`
+	Thursday int `json:"Thursday,omitempty"`
+	Friday int `json:"Friday,omitempty"`
+	Saturday int `json:"Saturday,omitempty"`
+	Sunday int `json:"Sunday,omitempty"`
+	StartHour string `json:"Start_hour,omitempty"`
+	EndHour string `json:"End_hour,omitempty"`
+	IdPromotion string `json:"IdPromotion,omitempty"`
+}
 
 type Promotion struct{
 	Id string `json:"id,omitempty"`
 	Off float64 `json:"off,omitempty"`
 	Name string `json:"name,omitempty"`
 	PromotionCode string `json:"promotion_code,omitempty"`
-	PromotionCoverages []Coverage `json:"coverages,omitempty"`
-	StartDate int64 `json:"initial_at,omitempty"`
-	EndDate int64 `json:"end_at,omitempty"`
-	StartHour string `json:"initial_hour,omitempty"`
-	EndHour string `json:"end_hour,omitempty"`
+	PromotionAvailable []Available `json:"availables,omitempty"`
+	PromotionCoverages []Coverage `json:"coverages,omitempty"`	
+	StartDate string `json:"initial_at,omitempty"`
+	EndDate string `json:"end_at,omitempty"`
+	Modality string `json:"modality_name,omitempty`
+	NewModality int `json:"new_modality,omitempty"`
 }
 
 type MoreUser struct{

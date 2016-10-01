@@ -33,8 +33,6 @@ func SearchPlayersDefault(position model.Position) (players []model.Player){
                             "promo.promotion_code, " + 
                             "promo.initial_at, " + 
                             "promo.final_at, " + 
-                            "promo.initial_hour, " + 
-                            "promo.final_hour, " + 
                             "p.active, " + 
                             "m.active, " + 
                             "m.edit_values, " + 
@@ -82,15 +80,14 @@ func SearchPlayersDefault(position model.Position) (players []model.Player){
         var namePromo string
         var off float64
         var promoCode string
-        var initialAt int64
-        var finalAt int64
-        var initialHour string
-        var finalHour string
+        var initialAt []byte
+        var finalAt []byte
         var activePlayer int
         var activeModality int
         var editValues int
         var token string
-        err = rows.Scan(&idPlayer, &namePlayer, &idModality, &nameModality, &priceKm, &priceBase, &priceTime, &priceMinimum, &timeKm, &idPromo, &namePromo, &off, &promoCode, &initialAt, &finalAt, &initialHour, &finalHour, &activePlayer, &activeModality, &editValues, &token)
+
+        err = rows.Scan(&idPlayer, &namePlayer, &idModality, &nameModality, &priceKm, &priceBase, &priceTime, &priceMinimum, &timeKm, &idPromo, &namePromo, &off, &promoCode, &activePlayer, &activeModality, &editValues, &token)
 
         element := model.Player{
                 Id: idPlayer, 
@@ -112,10 +109,8 @@ func SearchPlayersDefault(position model.Position) (players []model.Player){
                         Name: namePromo,
                         Off: off,
                         PromotionCode: promoCode,
-                        StartDate: initialAt,
-                        EndDate: finalAt,
-                        StartHour: initialHour,
-                        EndHour: finalHour,
+                        StartDate: string(initialAt),
+                        EndDate: string(finalAt),
                     },
                 },
             }

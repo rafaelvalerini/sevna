@@ -9,6 +9,7 @@ import(
 	"strings"
 	"runtime"
 	"sync"
+	
 )
 
 func AgregateAll(request model.RequestAggregator) (agregator model.Aggregator){
@@ -78,6 +79,8 @@ func AgregateAll(request model.RequestAggregator) (agregator model.Aggregator){
 	}()
 
 	wg.Wait()
+
+	AddPromotions(aggregate.Players)
 
 	go func() {
 

@@ -103,7 +103,7 @@ func saveModalityPromotion(entity model.Promotion, modality int, idPromotion int
 
     }
 
-    res, err := stmtIns.Exec(idPromotion, modalityId, entity.StartDate, entity.EndDate, entity.StartHour, entity.EndHour)
+    res, err := stmtIns.Exec(idPromotion, modalityId, entity.StartDate, entity.EndDate)
 
     if err != nil {
 
@@ -273,21 +273,15 @@ func FindPromotion(player int, modality int) (promotions []model.Promotion){
     	
     	var off float64
     	
-    	var promotionCode string
-    	
     	var zipCodeInitial string
     	
     	var zipCodeFinal string
 
-        var initialAt int64
+        var initialAt []byte
 
-        var finalAt int64
+        var finalAt []byte
 
-        var initialHour string
-
-        var finalHour string
-    	
-        err = rows.Scan(&promotionId, &promotionName, &off, &promotionCode, &zipCodeInitial, &zipCodeFinal, &initialAt, &finalAt, &initialHour, &finalHour)
+        err = rows.Scan(&promotionId, &promotionName, &off, &zipCodeInitial, &zipCodeFinal, &initialAt, &finalAt)
 
         if len(promotions) > 0{
 
@@ -313,11 +307,8 @@ func FindPromotion(player int, modality int) (promotions []model.Promotion){
                     Id: strconv.Itoa(promotionId), 
                     Name: promotionName, 
                     Off: off, 
-                    PromotionCode: promotionCode,
-                    StartDate: initialAt,
-                    EndDate: finalAt,
-                    StartHour: initialHour,
-                    EndHour: finalHour,
+                    StartDate: string(initialAt),
+                    EndDate: string(finalAt),
                     PromotionCoverages: []model.Coverage{
                         model.Coverage{
                             ZipCodeInitial: zipCodeInitial, 
@@ -336,11 +327,8 @@ func FindPromotion(player int, modality int) (promotions []model.Promotion){
                 Id: strconv.Itoa(promotionId), 
                 Name: promotionName, 
                 Off: off, 
-                PromotionCode: promotionCode,
-                StartDate: initialAt,
-                EndDate: finalAt,
-                StartHour: initialHour,
-                EndHour: finalHour,
+                StartDate: string(initialAt),
+                EndDate: string(finalAt),
                 PromotionCoverages: []model.Coverage{
                     model.Coverage{
                         ZipCodeInitial: zipCodeInitial, 
@@ -351,6 +339,186 @@ func FindPromotion(player int, modality int) (promotions []model.Promotion){
 
             promotions = append(promotions, promotionExists);
 			
+        }
+
+    }
+    
+    defer db.Close()
+
+    return promotions
+
+}
+
+func FindAllPromotions() (promotions []model.Promotion){
+
+    db, err := sql.Open("mysql", "USR_MOB:mob@money2@tcp(52.87.63.135:3306)/mobint?charset=utf8&parseTime=True&loc=Local")
+    
+    if err != nil {
+
+        panic(err)
+
+    }
+
+    rows, err := db.Query("select p.id, m.name, p.name, p.off, p.limit_off, p.new_modality, p.text, "+
+                            "pa.monday, pa.tuesday, pa.wednesday, pa.thursday, pa.friday, pa.saturday, pa.sunday, "+
+                            "pa.start_hour, pa.end_hour, pm.initial_at, pm.final_at, "+
+                            "pmc.zip_code_initial, pmc.zip_code_final, pmc.state, pmc.city "+
+                        "from promotion p  "+
+                            "left join promotion_available pa on p.id = pa.id_promotion "+
+                            "inner join promotion_modality pm on p.id = pm.id_promotion "+
+                            "inner join modality m on pm.id_modality = m.id "+
+                            "left join promotion_modality_coverage pmc on pm.id = pmc.id_promotion_modality  "+
+                        "where p.active = 1") 
+
+
+    if err != nil {
+
+       fmt.Println(err)
+
+        os.Exit(1)
+
+    }
+
+    for rows.Next() {
+
+        var promotionId int
+
+        var modalityName string
+
+        var promotionName string
+        
+        var off float64
+
+        var limitOff float64
+
+        var newModality int
+        
+        var text string
+
+        var monday int
+
+        var tuesday int
+
+        var wednesday int
+
+        var thursday int
+
+        var friday int
+
+        var saturday int
+
+        var sunday int
+
+        var endHour string
+
+        var startHour string
+
+        var initialAt string
+
+        var finalAt string
+        
+        var zipCodeInitial string
+        
+        var zipCodeFinal string
+
+        var state string
+
+        var city string
+        
+        err = rows.Scan(&promotionId, &modalityName, &promotionName, &off, &limitOff, &newModality, &text, &monday, &tuesday, &wednesday, &friday, &saturday, &sunday, &startHour, &endHour, &initialAt, &finalAt, &zipCodeInitial, &zipCodeFinal, &state, &city)
+
+        if len(promotions) > 0{
+
+            var promotionExists model.Promotion
+
+            for idx,_ := range promotions {
+
+                promotionBaseId,_ := strconv.Atoi(promotions[idx].Id)
+
+                if promotionBaseId == promotionId{
+
+                    promotionExists = promotions[idx]
+
+                    promotions[idx].PromotionCoverages = append(promotions[idx].PromotionCoverages, model.Coverage{ZipCodeInitial: zipCodeInitial, ZipCodeFinal: zipCodeFinal,});
+
+                    promotions[idx].PromotionAvailable = append(promotions[idx].PromotionAvailable, model.Available{Monday: monday, Tuesday: tuesday, Wednesday: wednesday, Thursday: thursday, Friday: friday, Saturday: saturday, Sunday: sunday, StartHour:  string(startHour), EndHour: string(endHour),})
+
+                }
+
+            }
+
+            if promotionExists.Id == ""{
+
+                promotionExists = model.Promotion{
+                    Id: strconv.Itoa(promotionId), 
+                    Name: promotionName, 
+                    Off: off, 
+                    StartDate: initialAt,
+                    EndDate: finalAt,
+                    Modality: modalityName,
+                    NewModality: newModality,
+                    PromotionAvailable: []model.Available{
+                        model.Available{
+                            Monday: monday,
+                            Tuesday: tuesday,
+                            Wednesday: wednesday,
+                            Thursday: thursday,
+                            Friday: friday,
+                            Saturday: saturday,
+                            Sunday: sunday,
+                            StartHour:  startHour,
+                            EndHour: endHour,
+                        },
+                    },
+                    PromotionCoverages: []model.Coverage{
+                        model.Coverage{
+                            ZipCodeInitial: zipCodeInitial, 
+                            ZipCodeFinal: zipCodeFinal,
+                            State: state,
+                            City: city,
+                        },
+                    },
+                }
+
+                promotions = append(promotions, promotionExists);
+
+            }
+
+        }else{
+
+            promotionExists := model.Promotion{
+                Id: strconv.Itoa(promotionId), 
+                Name: promotionName, 
+                Off: off, 
+                StartDate: initialAt,
+                EndDate: finalAt,
+                Modality: modalityName,
+                NewModality: newModality,
+                PromotionAvailable: []model.Available{
+                    model.Available{
+                        Monday: monday,
+                        Tuesday: tuesday,
+                        Wednesday: wednesday,
+                        Thursday: thursday,
+                        Friday: friday,
+                        Saturday: saturday,
+                        Sunday: sunday,
+                        StartHour:  startHour,
+                        EndHour: endHour,
+                    },
+                },
+                PromotionCoverages: []model.Coverage{
+                    model.Coverage{
+                        ZipCodeInitial: zipCodeInitial, 
+                        ZipCodeFinal: zipCodeFinal,
+                        State: state,
+                        City: city,
+                    },
+                },
+            }
+
+            promotions = append(promotions, promotionExists);
+            
         }
 
     }
