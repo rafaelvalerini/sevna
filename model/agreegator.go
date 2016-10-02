@@ -72,16 +72,16 @@ type Coverage struct{
 
 type Available struct{
 	Id int `json:"id,omitempty"`
-	Monday int `json:"Monday,omitempty"`
-	Tuesday int `json:"Tuesday,omitempty"`
-	Wednesday int `json:"Wednesday,omitempty"`
-	Thursday int `json:"Thursday,omitempty"`
-	Friday int `json:"Friday,omitempty"`
-	Saturday int `json:"Saturday,omitempty"`
-	Sunday int `json:"Sunday,omitempty"`
-	StartHour string `json:"Start_hour,omitempty"`
-	EndHour string `json:"End_hour,omitempty"`
-	IdPromotion string `json:"IdPromotion,omitempty"`
+	Monday int `json:"monday,omitempty"`
+	Tuesday int `json:"tuesday,omitempty"`
+	Wednesday int `json:"wednesday,omitempty"`
+	Thursday int `json:"thursday,omitempty"`
+	Friday int `json:"friday,omitempty"`
+	Saturday int `json:"saturday,omitempty"`
+	Sunday int `json:"sunday,omitempty"`
+	StartHour string `json:"start_hour,omitempty"`
+	EndHour string `json:"end_hour,omitempty"`
+	IdPromotion string `json:"idPromotion,omitempty"`
 }
 
 type Promotion struct{
@@ -93,7 +93,7 @@ type Promotion struct{
 	PromotionCoverages []Coverage `json:"coverages,omitempty"`	
 	StartDate string `json:"initial_at,omitempty"`
 	EndDate string `json:"end_at,omitempty"`
-	Modality string `json:"modality_name,omitempty`
+	Modality string `json:"modality_name,omitempty"`
 	NewModality int `json:"new_modality,omitempty"`
 }
 

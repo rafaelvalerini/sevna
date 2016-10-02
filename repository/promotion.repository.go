@@ -4,7 +4,6 @@ import(
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 	"fmt"
-	"os"
 	"agregador/model"
 	"strconv"
 )
@@ -214,7 +213,7 @@ func DeletePromotionModality(promotionModality int){
 	
 	if err != nil {
 
-	    panic(err.Error())
+	    fmt.Println(err)
 
 	}
 
@@ -222,7 +221,7 @@ func DeletePromotionModality(promotionModality int){
 
     if err != nil {
 
-        panic(err.Error())
+        fmt.Println(err)
 
     }
 
@@ -230,7 +229,7 @@ func DeletePromotionModality(promotionModality int){
 
     if err != nil {
 
-    	panic(err.Error())
+    	fmt.Println(err)
 
     }
        
@@ -244,7 +243,11 @@ func FindPromotion(player int, modality int) (promotions []model.Promotion){
 	
 	if err != nil {
 
-	    panic(err)
+	    fmt.Println(err)
+
+        defer db.Close()
+
+        return promotions
 
 	}
 
@@ -259,9 +262,11 @@ func FindPromotion(player int, modality int) (promotions []model.Promotion){
 
     if err != nil {
 
-       fmt.Println(err)
+        fmt.Println(err)
 
-        os.Exit(1)
+        defer db.Close()
+
+        return promotions
 
     }
 
@@ -355,27 +360,33 @@ func FindAllPromotions() (promotions []model.Promotion){
     
     if err != nil {
 
-        panic(err)
+        fmt.Println(err)
+
+        defer db.Close()
+
+        return promotions
 
     }
 
     rows, err := db.Query("select p.id, m.name, p.name, p.off, p.limit_off, p.new_modality, p.text, "+
                             "pa.monday, pa.tuesday, pa.wednesday, pa.thursday, pa.friday, pa.saturday, pa.sunday, "+
-                            "pa.start_hour, pa.end_hour, pm.initial_at, pm.final_at, "+
+                            "pa.start_hour, pa.end_hour, "+
                             "pmc.zip_code_initial, pmc.zip_code_final, pmc.state, pmc.city "+
                         "from promotion p  "+
                             "left join promotion_available pa on p.id = pa.id_promotion "+
                             "inner join promotion_modality pm on p.id = pm.id_promotion "+
                             "inner join modality m on pm.id_modality = m.id "+
                             "left join promotion_modality_coverage pmc on pm.id = pmc.id_promotion_modality  "+
-                        "where p.active = 1") 
+                        "where p.active = 1 and (pm.initial_at is null or NOW() between pm.initial_at and pm.final_at)") 
 
 
     if err != nil {
 
-       fmt.Println(err)
+        fmt.Println(err)
 
-        os.Exit(1)
+        defer db.Close()
+
+        return promotions
 
     }
 
@@ -409,23 +420,29 @@ func FindAllPromotions() (promotions []model.Promotion){
 
         var sunday int
 
-        var endHour string
+        var endHour []byte
 
-        var startHour string
+        var startHour []byte
 
-        var initialAt string
-
-        var finalAt string
+        var zipCodeInitial []byte
         
-        var zipCodeInitial string
-        
-        var zipCodeFinal string
+        var zipCodeFinal []byte
 
-        var state string
+        var state []byte
 
-        var city string
+        var city []byte
         
-        err = rows.Scan(&promotionId, &modalityName, &promotionName, &off, &limitOff, &newModality, &text, &monday, &tuesday, &wednesday, &friday, &saturday, &sunday, &startHour, &endHour, &initialAt, &finalAt, &zipCodeInitial, &zipCodeFinal, &state, &city)
+         err = rows.Scan(&promotionId, &modalityName, &promotionName, &off, &limitOff, &newModality, &text, &monday, &tuesday, &wednesday, &thursday, &friday, &saturday, &sunday, &startHour, &endHour, &zipCodeInitial, &zipCodeFinal, &state, &city)
+
+        if err != nil{
+
+            fmt.Println(err)
+
+            defer db.Close()
+
+            return promotions
+
+        }
 
         if len(promotions) > 0{
 
@@ -435,13 +452,47 @@ func FindAllPromotions() (promotions []model.Promotion){
 
                 promotionBaseId,_ := strconv.Atoi(promotions[idx].Id)
 
-                if promotionBaseId == promotionId{
+                if promotionBaseId == promotionId && modalityName == promotions[idx].Modality{
 
                     promotionExists = promotions[idx]
 
-                    promotions[idx].PromotionCoverages = append(promotions[idx].PromotionCoverages, model.Coverage{ZipCodeInitial: zipCodeInitial, ZipCodeFinal: zipCodeFinal,});
+                    if zipCodeInitial != nil || zipCodeFinal != nil || city != nil || state != nil{
 
-                    promotions[idx].PromotionAvailable = append(promotions[idx].PromotionAvailable, model.Available{Monday: monday, Tuesday: tuesday, Wednesday: wednesday, Thursday: thursday, Friday: friday, Saturday: saturday, Sunday: sunday, StartHour:  string(startHour), EndHour: string(endHour),})
+                        add := true
+
+                        for _,cov := range promotions[idx].PromotionCoverages {
+
+                            if cov.ZipCodeInitial == string(zipCodeInitial) && cov.ZipCodeFinal == string(zipCodeFinal) && cov.City == string(city) && cov.State == string(state){
+                                add = false
+                            }
+                            
+                        }
+
+                        if add {
+
+                            promotions[idx].PromotionCoverages = append(promotions[idx].PromotionCoverages, model.Coverage{
+                                ZipCodeInitial: string(zipCodeInitial), 
+                                ZipCodeFinal: string(zipCodeFinal), 
+                                City: string(city), 
+                                State: string(state),
+                            })    
+
+                        }
+
+                    }
+
+                    promotions[idx].PromotionAvailable = append(promotions[idx].PromotionAvailable, model.Available{
+                        Monday: monday, 
+                        Tuesday: tuesday, 
+                        Wednesday: wednesday, 
+                        Thursday: thursday, 
+                        Friday: friday, 
+                        Saturday: saturday,
+                        Sunday: sunday, 
+                        StartHour:  
+                        string(startHour), 
+                        EndHour: string(endHour),
+                    })
 
                 }
 
@@ -453,8 +504,6 @@ func FindAllPromotions() (promotions []model.Promotion){
                     Id: strconv.Itoa(promotionId), 
                     Name: promotionName, 
                     Off: off, 
-                    StartDate: initialAt,
-                    EndDate: finalAt,
                     Modality: modalityName,
                     NewModality: newModality,
                     PromotionAvailable: []model.Available{
@@ -466,16 +515,16 @@ func FindAllPromotions() (promotions []model.Promotion){
                             Friday: friday,
                             Saturday: saturday,
                             Sunday: sunday,
-                            StartHour:  startHour,
-                            EndHour: endHour,
+                            StartHour:  string(startHour),
+                            EndHour: string(endHour),
                         },
                     },
                     PromotionCoverages: []model.Coverage{
                         model.Coverage{
-                            ZipCodeInitial: zipCodeInitial, 
-                            ZipCodeFinal: zipCodeFinal,
-                            State: state,
-                            City: city,
+                            ZipCodeInitial: string(zipCodeInitial), 
+                            ZipCodeFinal: string(zipCodeFinal),
+                            State: string(state),
+                            City: string(city),
                         },
                     },
                 }
@@ -490,8 +539,6 @@ func FindAllPromotions() (promotions []model.Promotion){
                 Id: strconv.Itoa(promotionId), 
                 Name: promotionName, 
                 Off: off, 
-                StartDate: initialAt,
-                EndDate: finalAt,
                 Modality: modalityName,
                 NewModality: newModality,
                 PromotionAvailable: []model.Available{
@@ -503,16 +550,16 @@ func FindAllPromotions() (promotions []model.Promotion){
                         Friday: friday,
                         Saturday: saturday,
                         Sunday: sunday,
-                        StartHour:  startHour,
-                        EndHour: endHour,
+                        StartHour:  string(startHour),
+                        EndHour: string(endHour),
                     },
                 },
                 PromotionCoverages: []model.Coverage{
                     model.Coverage{
-                        ZipCodeInitial: zipCodeInitial, 
-                        ZipCodeFinal: zipCodeFinal,
-                        State: state,
-                        City: city,
+                        ZipCodeInitial: string(zipCodeInitial), 
+                        ZipCodeFinal: string(zipCodeFinal),
+                        State: string(state),
+                        City: string(city),
                     },
                 },
             }
