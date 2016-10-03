@@ -13,7 +13,7 @@ import(
 
 func SaveSearch(agregator model.Aggregator, request model.RequestAggregator) {
 
-	db, err := sql.Open("mysql", "USR_MOB:mob@money2@tcp(52.87.63.135:3306)/mobint?charset=utf8&parseTime=True&loc=Local")
+	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah?charset=utf8&parseTime=True&loc=Local")
 	
 	if err != nil {
 
@@ -45,7 +45,7 @@ func SaveSearch(agregator model.Aggregator, request model.RequestAggregator) {
 
 func saveConfigDevice(searchBase string, device model.Device, db *sql.DB) {
 	
-	 stmtIns, err := db.Prepare("INSERT INTO mobint.config_device (id_device, operation_system, operation_system_version, device, type_connection, id_search) VALUES(?, ?, ?, ?, ?, ?)") 
+	 stmtIns, err := db.Prepare("INSERT INTO config_device (id_device, operation_system, operation_system_version, device, type_connection, id_search) VALUES(?, ?, ?, ?, ?, ?)") 
 
     if err != nil {
 
@@ -67,7 +67,7 @@ func saveConfigDevice(searchBase string, device model.Device, db *sql.DB) {
 
 func saveResults(searchBase string, player model.Player, db *sql.DB) {
 	
-    stmtIns, err := db.Prepare("INSERT INTO mobint.search_results (id, id_player, modality, waiting_time, tax_value, id_search, multiplier, promotion) VALUES(?, ?, ?, ?, ?, ?, ?, ?)") 
+    stmtIns, err := db.Prepare("INSERT INTO search_results (id, id_player, modality, waiting_time, tax_value, id_search, multiplier, promotion) VALUES(?, ?, ?, ?, ?, ?, ?, ?)") 
 
     if err != nil {
 
@@ -99,7 +99,7 @@ func saveSearch(startAddressId string, endAddressId string, db *sql.DB) (uuidStr
 
 	}
 
-    stmtIns, err := db.Prepare("INSERT INTO mobint.search (id, date_time, start_address_id, end_address_id) VALUES(?, ?, ?, ?)") 
+    stmtIns, err := db.Prepare("INSERT INTO search (id, date_time, start_address_id, end_address_id) VALUES(?, ?, ?, ?)") 
 
     if err != nil {
 
@@ -136,7 +136,7 @@ func saveStartAddress(position model.Position, db *sql.DB) (uuidString string){
 
 	}
 
-    stmtIns, err := db.Prepare("INSERT INTO mobint.search_address (id, lat, lng, address, district, city, state) VALUES(?, ?, ?, ?, ?, ?, ?)") 
+    stmtIns, err := db.Prepare("INSERT INTO search_address (id, lat, lng, address, district, city, state) VALUES(?, ?, ?, ?, ?, ?, ?)") 
 
     if err != nil {
 
@@ -163,7 +163,7 @@ func saveStartAddress(position model.Position, db *sql.DB) (uuidString string){
 
 func Selected(selected string) (uuidString string){
 	
-	db, err := sql.Open("mysql", "USR_MOB:mob@money2@tcp(52.87.63.135:3306)/mobint?charset=utf8&parseTime=True&loc=Local")
+	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah?charset=utf8&parseTime=True&loc=Local")
 	
 	if err != nil {
 
@@ -173,7 +173,7 @@ func Selected(selected string) (uuidString string){
 
 	defer db.Close()
 
-    stmtIns, err := db.Prepare("INSERT INTO mobint.search_selected(id_search_results, date_time_click) VALUES(?, ?)") 
+    stmtIns, err := db.Prepare("INSERT INTO search_selected(id_search_results, date_time_click) VALUES(?, ?)") 
 
     if err != nil {
 

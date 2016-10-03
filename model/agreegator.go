@@ -87,7 +87,10 @@ type Available struct{
 type Promotion struct{
 	Id string `json:"id,omitempty"`
 	Off float64 `json:"off,omitempty"`
+	LimitOff float64 `json:"limit_off,omitempty"`
 	Name string `json:"name,omitempty"`
+	ExibitionName string `json:"exibition_name,omitempty"`
+	Description string `json:"description,omitempty"`
 	PromotionCode string `json:"promotion_code,omitempty"`
 	PromotionAvailable []Available `json:"availables,omitempty"`
 	PromotionCoverages []Coverage `json:"coverages,omitempty"`	

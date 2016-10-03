@@ -10,7 +10,7 @@ import(
 
 func SavePromotion(entity model.Promotion, modality int) (model model.Promotion){
 
-	db, err := sql.Open("mysql", "USR_MOB:mob@money2@tcp(52.87.63.135:3306)/mobint?charset=utf8&parseTime=True&loc=Local")
+	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah?charset=utf8&parseTime=True&loc=Local")
 	
 	if err != nil {
 
@@ -179,7 +179,7 @@ func saveCoveragePromotion(entity model.Promotion, promotionModalityId int , mod
 
 func DeletePromotion(promotion int){
 	
-	db, err := sql.Open("mysql", "USR_MOB:mob@money2@tcp(52.87.63.135:3306)/mobint?charset=utf8&parseTime=True&loc=Local")
+	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah?charset=utf8&parseTime=True&loc=Local")
 	
 	if err != nil {
 
@@ -209,7 +209,7 @@ func DeletePromotion(promotion int){
 
 func DeletePromotionModality(promotionModality int){
 	
-	db, err := sql.Open("mysql", "USR_MOB:mob@money2@tcp(52.87.63.135:3306)/mobint?charset=utf8&parseTime=True&loc=Local")
+	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah?charset=utf8&parseTime=True&loc=Local")
 	
 	if err != nil {
 
@@ -239,7 +239,7 @@ func DeletePromotionModality(promotionModality int){
 
 func FindPromotion(player int, modality int) (promotions []model.Promotion){
 
-	db, err := sql.Open("mysql", "USR_MOB:mob@money2@tcp(52.87.63.135:3306)/mobint?charset=utf8&parseTime=True&loc=Local")
+	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah?charset=utf8&parseTime=True&loc=Local")
 	
 	if err != nil {
 
@@ -356,7 +356,7 @@ func FindPromotion(player int, modality int) (promotions []model.Promotion){
 
 func FindAllPromotions() (promotions []model.Promotion){
 
-    db, err := sql.Open("mysql", "USR_MOB:mob@money2@tcp(52.87.63.135:3306)/mobint?charset=utf8&parseTime=True&loc=Local")
+    db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah?charset=utf8&parseTime=True&loc=Local")
     
     if err != nil {
 
@@ -368,7 +368,7 @@ func FindAllPromotions() (promotions []model.Promotion){
 
     }
 
-    rows, err := db.Query("select p.id, m.name, p.name, p.off, p.limit_off, p.new_modality, p.text, "+
+    rows, err := db.Query("select p.id, m.name, p.name, p.off, p.limit_off, p.new_modality, p.text, pm.exibition_name, "+
                             "pa.monday, pa.tuesday, pa.wednesday, pa.thursday, pa.friday, pa.saturday, pa.sunday, "+
                             "pa.start_hour, pa.end_hour, "+
                             "pmc.zip_code_initial, pmc.zip_code_final, pmc.state, pmc.city "+
@@ -431,8 +431,10 @@ func FindAllPromotions() (promotions []model.Promotion){
         var state []byte
 
         var city []byte
+
+        var exibitionName string
         
-         err = rows.Scan(&promotionId, &modalityName, &promotionName, &off, &limitOff, &newModality, &text, &monday, &tuesday, &wednesday, &thursday, &friday, &saturday, &sunday, &startHour, &endHour, &zipCodeInitial, &zipCodeFinal, &state, &city)
+         err = rows.Scan(&promotionId, &modalityName, &promotionName, &off, &limitOff, &newModality, &text, &exibitionName, &monday, &tuesday, &wednesday, &thursday, &friday, &saturday, &sunday, &startHour, &endHour, &zipCodeInitial, &zipCodeFinal, &state, &city)
 
         if err != nil{
 
@@ -506,6 +508,9 @@ func FindAllPromotions() (promotions []model.Promotion){
                     Off: off, 
                     Modality: modalityName,
                     NewModality: newModality,
+                    ExibitionName: exibitionName,
+                    Description: text,
+                    LimitOff: limitOff,
                     PromotionAvailable: []model.Available{
                         model.Available{
                             Monday: monday,
@@ -541,6 +546,9 @@ func FindAllPromotions() (promotions []model.Promotion){
                 Off: off, 
                 Modality: modalityName,
                 NewModality: newModality,
+                ExibitionName: exibitionName,
+                Description: text,
+                LimitOff: limitOff,
                 PromotionAvailable: []model.Available{
                     model.Available{
                         Monday: monday,

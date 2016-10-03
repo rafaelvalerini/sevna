@@ -10,7 +10,7 @@ import(
 
 func CountEstimates() (cont int64){
 
-	db, err := sql.Open("mysql", "USR_MOB:mob@money2@tcp(52.87.63.135:3306)/mobint?charset=utf8&parseTime=True&loc=Local")
+	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah?charset=utf8&parseTime=True&loc=Local")
 	
 	if err != nil {
 
@@ -42,7 +42,7 @@ func CountEstimates() (cont int64){
 
 func CountModalities() (modalities []model.MoreUser){
 
-	db, err := sql.Open("mysql", "USR_MOB:mob@money2@tcp(52.87.63.135:3306)/mobint?charset=utf8&parseTime=True&loc=Local")
+	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah?charset=utf8&parseTime=True&loc=Local")
 	
 	if err != nil {
 
@@ -88,7 +88,7 @@ func CountModalities() (modalities []model.MoreUser){
 
 func SearchByNotification(state string, city string, initial int) (notifications []string){
 
-	db, err := sql.Open("mysql", "USR_MOB:mob@money2@tcp(52.87.63.135:3306)/mobint?charset=utf8&parseTime=True&loc=Local")
+	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah?charset=utf8&parseTime=True&loc=Local")
 	
 	if err != nil {
 
@@ -131,7 +131,7 @@ func SearchByNotification(state string, city string, initial int) (notifications
 
 func SumSavedEstimates() (model model.MetaFloat64){
 
-    db, err := sql.Open("mysql", "USR_MOB:mob@money2@tcp(52.87.63.135:3306)/mobint?charset=utf8&parseTime=True&loc=Local")
+    db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah?charset=utf8&parseTime=True&loc=Local")
     
     if err != nil {
 

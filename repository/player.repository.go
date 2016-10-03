@@ -10,7 +10,7 @@ import(
 
 func SavePlayer(entity model.Player) (model model.Player){
 
-	db, err := sql.Open("mysql", "USR_MOB:mob@money2@tcp(52.87.63.135:3306)/mobint?charset=utf8&parseTime=True&loc=Local")
+	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah?charset=utf8&parseTime=True&loc=Local")
 	
 	if err != nil {
 
@@ -199,7 +199,7 @@ func saveCoverage(modality model.Modality, playerId int , db *sql.DB) {
 
 func DeletePlayer(playerId int64){
 	
-	db, err := sql.Open("mysql", "USR_MOB:mob@money2@tcp(52.87.63.135:3306)/mobint?charset=utf8&parseTime=True&loc=Local")
+	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah?charset=utf8&parseTime=True&loc=Local")
 	
 	if err != nil {
 
@@ -229,7 +229,7 @@ func DeletePlayer(playerId int64){
 
 func DeleteModality(playerId int64, modality int64){
 	
-	db, err := sql.Open("mysql", "USR_MOB:mob@money2@tcp(52.87.63.135:3306)/mobint?charset=utf8&parseTime=True&loc=Local")
+	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah?charset=utf8&parseTime=True&loc=Local")
 	
 	if err != nil {
 
@@ -259,7 +259,7 @@ func DeleteModality(playerId int64, modality int64){
 
 func FindAllPlayers() (players []model.Player){
 
-	db, err := sql.Open("mysql", "USR_MOB:mob@money2@tcp(52.87.63.135:3306)/mobint?charset=utf8&parseTime=True&loc=Local")
+	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah?charset=utf8&parseTime=True&loc=Local")
 	
 	if err != nil {
 
