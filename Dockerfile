@@ -1,11 +1,21 @@
-FROM golang:latest
+FROM golang
 
-add agregador /tmp
+WORKDIR /go/src/agregador
 
-run chmod +x /tmp/agregador
+ADD . /go/src/agregador
 
-expose 8080
+RUN go get
 
-WORKDIR /tmp
+RUN go install agregador
 
-cmd ["/tmp/agregador"]
+RUN apt-get update
+
+RUN apt-get install uuid-runtime -y
+
+ENTRYPOINT ["/go/bin/agregador"]
+
+EXPOSE 8080
+
+CMD []
+
+
