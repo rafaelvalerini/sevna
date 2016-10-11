@@ -2,13 +2,14 @@ package service
 
 import(
 	"agregador/model"
+	"strings"
 )
 
 func GetModalityByName(modalities []model.Modality, name string) (modality model.Modality){
 
 	for _,mo := range modalities {
 
-		if mo.Name == name{
+		if strings.ToUpper(strings.TrimSpace(mo.Name)) == strings.ToUpper(strings.TrimSpace(name)){
 
 			return mo
 
