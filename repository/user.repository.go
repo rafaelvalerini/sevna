@@ -6,6 +6,8 @@ import(
 	"agregador/model"
 	"fmt"
 	"os"
+    "os/exec"
+    "strings"
 )
 
 func Login(mail string, password string) (user model.User){
@@ -18,7 +20,7 @@ func Login(mail string, password string) (user model.User){
 
 	}
 
-	rows, err := db.Query("SELECT id, mail, username FROM user where mail = ? and password = ?", mail, password) 
+	rows, err := db.Query("SELECT id, mail, username, token FROM user where mail = ? and password = ?", mail, password) 
 
     if err != nil {
 
@@ -33,13 +35,15 @@ func Login(mail string, password string) (user model.User){
         var id int64
         var username string
         var mail string
+        var token string
         
-        err = rows.Scan(&id, &mail, &username)
+        err = rows.Scan(&id, &mail, &username, &token)
 
         user = model.User{
                 Id: id, 
                 Username: username, 
                 Mail: mail,
+                Token: token,
             }
 
 	}    
@@ -107,7 +111,9 @@ func CreateUser(entity model.User){
 
 	defer db.Close()
  	
- 	stmtIns, err := db.Prepare("INSERT INTO user(mail, username, password) VALUES(?, ?, ?)") 
+    
+
+ 	stmtIns, err := db.Prepare("INSERT INTO user(mail, username, password, token) VALUES(?, ?, ?, ?)") 
 
     if err != nil {
 
@@ -115,7 +121,15 @@ func CreateUser(entity model.User){
 
     }
 
-    _, err = stmtIns.Exec(entity.Mail, entity.Username, entity.Password)
+    uuid, err := exec.Command("uuidgen").Output()
+
+    if err != nil {
+
+        panic(err.Error())
+
+    }
+
+    _, err = stmtIns.Exec(entity.Mail, entity.Username, entity.Password, strings.Replace(string(uuid[:]),"\n","",-1))
 
     if err != nil {
 
@@ -126,4 +140,52 @@ func CreateUser(entity model.User){
     defer stmtIns.Close()
 
 }
+
+func FindUserByToken(token string) (user model.User){
+
+    db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah?charset=utf8&parseTime=True&loc=Local")
+    
+    if err != nil {
+
+        panic(err)
+
+    }
+
+    rows, err := db.Query("SELECT id, mail, username, password, token FROM user where token = ? ", token) 
+
+    if err != nil {
+
+       fmt.Println(err)
+
+       os.Exit(1)
+
+    }
+
+    for rows.Next() {
+
+        var id int64
+        var username string
+        var mail string
+        var password string
+        var token string
+        
+        err = rows.Scan(&id, &mail, &username, &password, &token)
+
+        user = model.User{
+                    Id: id, 
+                    Username: username, 
+                    Mail: mail,
+                    Password: password,
+                    Token: token,
+                }
+
+    }    
+    
+    defer db.Close()
+
+    return user
+
+}
+
+
 

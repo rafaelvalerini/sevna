@@ -6,6 +6,8 @@ import(
 	"fmt"
 	"os"
 	"agregador/model"
+    "time"
+    "strconv"
 )
 
 func CountEstimates() (cont int64){
@@ -190,5 +192,131 @@ func SumSavedEstimates() (model model.MetaFloat64){
     defer db.Close()
 
     return model
+
+}
+
+func FindAnalytics(state string, city string, player string, modality string, startAt string, endAt string) (result []model.ResultAnalytics){
+
+    db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah?charset=utf8&parseTime=True&loc=Local")
+    
+    if err != nil {
+
+        panic(err)
+
+    }
+
+    layout := "2006-01-02T15:04:05.000Z"
+
+    start_date, err := time.Parse(layout, startAt)
+
+    end_date, err := time.Parse(layout, endAt)
+
+    query := fmt.Sprintf("select "+
+                "distinct  "+
+                "startAddress.date_time as DateTime, "+
+                "startAddress.address as StartAddress, "+
+                "endAddress.address as EndAddress, "+
+                "p.name as Player, "+
+                "selected.id_modality as Modality, "+
+                "selected.tax_value as Value, "+
+                "c.operation_system as OperationSystem, "+
+                "startAddress.city as StartCity, "+
+                "startAddress.state as StartState, "+
+                "endAddress.city as EndCity, "+
+                "endAddress.state as EndState, "+
+                "c.operation_system_version as OperationSystemVersion, "+
+                "c.type_connection as TypeConnection "+
+            "from "+
+                "( "+
+                    "select "+
+                        "s.date_time as date_time, "+
+                        "s.id as id, "+
+                        "sa.address as address, "+
+                        "sa.city as city, "+
+                        "sa.state as state "+
+                    "from "+
+                        "search s inner join search_address sa on "+
+                        "s.start_address_id = sa.id "+
+                ") startAddress left join( "+
+                    "select "+
+                        "res.id_search as id_search, "+
+                        "res.id_player as id_player, "+
+                        "res.modality as id_modality, "+
+                        "res.tax_value as tax_value "+
+                    "from "+
+                        "search_results res inner join search_selected se on "+
+                        "se.id_search_results = res.id "+
+                ") selected on "+
+                "selected.id_search = startAddress.id inner join( "+
+                    "select "+
+                        "s.date_time as date_time, "+
+                        "s.id as id, "+
+                        "sa.address as address, "+
+                        "sa.city as city, "+
+                        "sa.state as state "+
+                    "from "+
+                        "search s inner join search_address sa on "+
+                        "s.end_address_id = sa.id "+
+                ") endAddress on "+
+                "startAddress.id = endAddress.id  "+
+                "left join player p on p.id = selected.id_player "+
+                "inner join config_device c on startAddress.id = c.id_search "+
+            "where startAddress.date_time between '%s' and '%s' ", start_date.Format(time.RFC3339), end_date.Format(time.RFC3339))
+
+    
+
+    if state != ""{
+        query = query + " and startAddress.state = '" + state + "'"
+    }
+
+    if city != ""{
+        query = query + " and startAddress.city = '" + city + "'"
+    }
+
+    if player != ""{
+        playerId,_ := strconv.Atoi(player)
+        query = query + " and p.id = " + fmt.Sprintf("%d",playerId)
+    }
+
+
+    if modality != ""{
+        query = query + " and UPPER(selected.id_modality) = '" + modality + "'"
+    }
+
+    //query = query + " order by startAddress.date_time desc "
+
+    rows, err := db.Query(query) 
+
+    if err != nil {
+
+       fmt.Println(err)
+
+    }
+
+    for rows.Next() {
+
+        var res model.ResultAnalytics
+
+        var playerResult []byte
+
+        var modalityResult []byte
+
+        var valueResult []byte
+
+        err = rows.Scan(&res.DateTime, &res.StartAddress, &res.EndAddress, &playerResult, &modalityResult, &valueResult, &res.OperationSystem, &res.StartCity, &res.StartState, &res.EndCity, &res.EndState, &res.OperationSystemVersion, &res.TypeConnection)
+
+        res.Player = string(playerResult)
+
+        res.Modality = string(modalityResult)
+
+        res.Value = string(valueResult)
+
+        result = append(result, res)
+
+    }
+    
+    defer db.Close()
+
+    return result
 
 }

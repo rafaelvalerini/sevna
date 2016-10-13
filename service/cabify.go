@@ -43,6 +43,8 @@ func processEstimatesCabify(estimate model.ResponseCabify, player model.Player) 
 
 		modal := GetModalityByName(player.Modalities, est.VehicleType.Name)
 
+		fmt.Println("Nome Modal: ", modal.Name)
+
 		if modal.Name == "" || modal.Active == 0{
 
 			continue
@@ -121,6 +123,8 @@ func getEstimates(start_lat float64, start_lng float64, end_lat float64, end_lng
  		fmt.Println(err)
  		return response
  	}
+
+ 	fmt.Println(string(htmlData));
 
  	c := []byte(string(htmlData))
 

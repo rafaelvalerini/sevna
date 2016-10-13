@@ -5,6 +5,7 @@ type User struct{
 	Username string  `json:"username"`
 	Mail string  `json:"mail"`
 	Password string `json:"password"` 
+	Token string `json:"token"` 
 }
 
 type MessageSend struct {

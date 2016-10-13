@@ -20,9 +20,7 @@ func SavePlayer(entity model.Player) (model model.Player){
 
 	defer db.Close()
 
-	id := savePlayer(entity, db)
-
-	saveModality(entity.Modalities, id, db)
+	savePlayer(entity, db)
 
 	return entity
 
@@ -30,170 +28,57 @@ func SavePlayer(entity model.Player) (model model.Player){
 
 func savePlayer(entity model.Player, db *sql.DB) (id int){
 	
-	if entity.Id > 0{
+	stmtIns, err := db.Prepare("UPDATE player SET name = ?, active = ? where id = ?");
 
-		stmtIns, err := db.Prepare("UPDATE player SET name = ?, active = ? where id = ?");
+    if err != nil {
 
-	    if err != nil {
-
-	        panic(err.Error())
-
-	    }
-
-	    _, err = stmtIns.Exec(entity.Name, entity.Active, entity.Id)
-
-	    if err != nil {
-
-	    	panic(err.Error())
-
-	    }
-	       
-	    defer stmtIns.Close()
-
-	    return entity.Id
-
-	}else{
-
-		stmtIns, err := db.Prepare("INSERT INTO player (name, active) VALUES(?,?)");
-
-	    if err != nil {
-
-	        panic(err.Error())
-
-	    }
-
-	    res, err := stmtIns.Exec(entity.Name, entity.Active)
-
-	    if err != nil {
-
-	    	panic(err.Error())
-
-	    }
-
-	    playerId, err := res.LastInsertId()
-
-	    if err != nil {
-
-	        panic(err.Error())
-
-	    }
-	    
-	    defer stmtIns.Close()
-
-	    entity.Id = int(playerId)
-
-	    return entity.Id;
-
-	}
-
-}
-
-func saveModality(modalities []model.Modality, playerId int , db *sql.DB) {
-	
-	for _,modality := range modalities {
-
-		modalityId,_ := strconv.Atoi(modality.Id)
-
-		stmtIns, err := db.Prepare("DELETE FROM modality_coverage WHERE id_modality = ? ");
-
-		if err != nil {
-
-	        panic(err.Error())
-
-	    }
-
-	    _, err = stmtIns.Exec(modality.Id)
-
-	    if err != nil {
-
-	    	panic(err.Error())
-
-	    }
-	       
-	    defer stmtIns.Close()
-
-		if modalityId > 0{
-
-			stmtIns, err := db.Prepare("UPDATE modality SET name=?, price_km=?, time_km=?, price_base=?, price_time = ?, minimum_price = ?, active = ?, edit_values = ? WHERE id=?");
-
-		    if err != nil {
-
-		        panic(err.Error())
-
-		    }
-
-		    _, err = stmtIns.Exec(modality.Name, modality.PriceKm, modality.TimeKm, modality.PriceBase, modality.PriceTime, modality.PriceMinimum, modality.Active, modality.EditValues, modality.Id)
-
-		    if err != nil {
-
-		    	panic(err.Error())
-
-		    }
-		       
-		    defer stmtIns.Close()
-
-		}else{
-			
-			stmtIns, err := db.Prepare("INSERT INTO modality (name, price_km, time_km, id_player, price_base, price_time, minimum_price, active, edit_values) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)");
-
-		    if err != nil {
-
-		        panic(err.Error())
-
-		    }
-
-		    res, err := stmtIns.Exec(modality.Name, modality.PriceKm, modality.TimeKm, playerId, modality.PriceBase, modality.PriceTime, modality.PriceMinimum, modality.Active, modality.EditValues)
-
-		    if err != nil {
-
-		    	panic(err.Error())
-
-		    }
-
-		    id, err := res.LastInsertId()
-
-		    if err != nil {
-
-		        panic(err.Error())
-
-		    }
-		    
-		    defer stmtIns.Close()
-
-		    modality.Id = strconv.Itoa(int(id))
-		}
-
-		saveCoverage(modality, playerId, db)
-	}
-}
-
-func saveCoverage(modality model.Modality, playerId int , db *sql.DB) {
-	
-    if len(modality.ModalityCoverage) > 0 {
-
-    	for _,coverage := range modality.ModalityCoverage {
-
-			stmtIns, err := db.Prepare("INSERT INTO modality_coverage (id_modality, zip_code_initial, zip_code_final) VALUES(?, ?, ?)");
-
-		    if err != nil {
-
-		        panic(err.Error())
-
-		    }
-
-		    _, err = stmtIns.Exec(modality.Id, coverage.ZipCodeInitial, coverage.ZipCodeFinal)
-
-		    if err != nil {
-
-		    	panic(err.Error())
-
-		    }
-		    
-		    defer stmtIns.Close()
-		
-		}
+        panic(err.Error())
 
     }
+
+    _, err = stmtIns.Exec(entity.Name, entity.Active, entity.Id)
+
+    if err != nil {
+
+    	panic(err.Error())
+
+    }
+       
+    defer stmtIns.Close()
+
+    return entity.Id
+
+}
+
+func SaveModality(modality model.Modality) {
+	
+	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah?charset=utf8&parseTime=True&loc=Local")
+	
+	if err != nil {
+
+	    panic(err.Error())
+
+	}
+
+	defer db.Close()
+
+	stmtIns, err := db.Prepare("UPDATE modality SET active=? WHERE id=?");
+
+    if err != nil {
+
+        panic(err.Error())
+
+    }
+
+    _, err = stmtIns.Exec(modality.Active, modality.Id)
+
+    if err != nil {
+
+    	panic(err.Error())
+
+    }
+       
+    defer stmtIns.Close()
 
 }
 
