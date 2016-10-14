@@ -3,16 +3,13 @@ package service
 import(
 	"agregador/model"
 	"strings"
-	"fmt"
 )
 
 func GetModalityByName(modalities []model.Modality, name string) (modality model.Modality){
 
 	for _,mo := range modalities {
 
-		fmt.Println("'", strings.ToUpper(strings.TrimSpace(mo.Name)), "' - '", strings.ToUpper(strings.TrimSpace(name)))
-
-		if strings.ToUpper(strings.TrimSpace(mo.Name)) == strings.ToUpper(strings.TrimSpace(name)){
+		if strings.ToUpper(strings.TrimSpace(mo.KeyApi)) == strings.ToUpper(strings.TrimSpace(name)){
 
 			return mo
 

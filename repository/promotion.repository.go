@@ -34,7 +34,7 @@ func savePromotion(entity model.Promotion, db *sql.DB) (id int){
 
 	if idPromotion > 0{
 
-		stmtIns, err := db.Prepare("UPDATE promotion SET name=?, off=?, promotion_code=? where id = ?");
+		stmtIns, err := db.Prepare("UPDATE promotion SET name=?, off=?, promotion_code=?, active=?, new_modality = ?, text = ? where id = ?");
 
 	    if err != nil {
 

@@ -61,6 +61,7 @@ type Modality struct{
 	PriceMinimum float64 `json:"price_minimum,omitempty"`
 	Active int `json:"active,omitempty"`
 	EditValues int `json:"edit_values,omitempty"`
+	KeyApi string `json:"key_api,omitempty"`
 }
 
 type Coverage struct{

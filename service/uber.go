@@ -76,7 +76,6 @@ func processEstimates(products model.ResponseProduct, times model.ResponseTime, 
 
 		for  _,product := range products.Products {
 
-
 			modal := GetModalityByName(player.Modalities, product.DisplayName)
 
 			if modal.Name == "" || modal.Active == 0{

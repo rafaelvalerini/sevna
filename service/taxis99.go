@@ -81,7 +81,7 @@ func processEstimates99Taxi(estimate model.Response99Taxi, player99 model.Player
 
 		}
 
-		m.Modality = modality
+		m.Modality = modal
 
 		m.Price = "R$" + est.LowerFare + "-" + est.UpperFare
 
@@ -124,19 +124,19 @@ func getEasy(m model.Player, playerEasy model.Player) (playerReturn model.Player
 	playerResult.Price = m.Price
 
 	switch m.Modality.Name{
-	    case "99POP" :
+	    case "99 POP" :
 	        playerResult.Modality.Name = "Easy Go"
 	        playerResult.WaitingTime = 300
 	        break
-	    case "Táxi":
+	    case "99 TÁXI":
 	        playerResult.Modality.Name = "EasyTaxi"
 	        playerResult.WaitingTime = 360
 	        break
-	    case "99TOP":
+	    case "99 TOP":
 	        playerResult.Modality.Name = "EasyPlus+"
 	        playerResult.WaitingTime = 300
 	        break
-	   	case "Táxi 30% OFF":
+	   	case "99 TÁXI 30% off":
 	        playerResult.Modality.Name = "EasyTaxi 30% OFF"
 	        playerResult.WaitingTime = 240
 	        break

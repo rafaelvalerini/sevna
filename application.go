@@ -10,9 +10,15 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"github.com/remind101/newrelic"
 )
 
 func main() {
+
+	newrelic.Init("VAH-GOLANG", "d8fd304dc5c8d8ddab8ee4471263c21ccd989ceb")
+    tx := newrelic.NewTx("/v1/estima")
+    tx.Start()
+    defer tx.End()
 
 	router := httprouter.New()
 
