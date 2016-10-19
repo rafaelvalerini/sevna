@@ -10,6 +10,7 @@ import (
  	"runtime"
     "sync"
     "strings"
+    "strconv"
 )
 
 const (
@@ -117,6 +118,8 @@ func processEstimates(products model.ResponseProduct, times model.ResponseTime, 
 					m.Price = price.Estimate
 
 					m.Multiplier = price.SurgeMultiplier
+
+					m.PopupMultiplier = "Multiplicador " + strconv.FormatFloat(m.Multiplier, 'f', 1, 64) + "x sobre o valor total da corrida"
 
 					break
 
