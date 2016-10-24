@@ -54,6 +54,7 @@ type Modality struct{
 	Name string `json:"name,omitempty"`
 	Image string `json:"image,omitempty"`
 	Promotion Promotion `json:"promotion,omitempty"`
+	Promotions []Promotion `json:"promotions,omitempty"`
 	PriceKm float64 `json:"price_km,omitempty"`
 	TimeKm int `json:"time_km,omitempty"`
 	ModalityCoverage []Coverage `json:"coverages,omitempty"`

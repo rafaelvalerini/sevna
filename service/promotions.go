@@ -13,7 +13,7 @@ func AddPromotions(players []model.Player) {
 
  		if(len(promotions) > 0){
 
- 			playerfor: for idx,_ := range players {
+ 			for idx,_ := range players {
 
  				for _,promotion := range promotions {
 
@@ -21,7 +21,7 @@ func AddPromotions(players []model.Player) {
 
 						players[idx].Modality.Promotion = promotion
 
-						continue playerfor
+						players[idx].Modality.Promotions = append(players[idx].Modality.Promotions, promotion)
 
  					}
 
