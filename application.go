@@ -64,6 +64,8 @@ func main() {
 
 	router.GET("/v1/estimates/analytics", getAnalytics)
 
+	router.GET("/v1/estimates/promotions/count", countPromotions)
+
 	c := cors.New(cors.Options{
 	    AllowedOrigins: []string{"*"},
 	    AllowCredentials: true,
@@ -138,7 +140,11 @@ func selected(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	}else{
 
-		result := repository.Selected(ps.ByName("selected"));
+		q := r.URL.Query()
+
+		promotion := q.Get("promotion")
+
+		result := repository.Selected(ps.ByName("selected"), promotion);
 
 		w.Header().Set("Content-Type", "application/json")
 
@@ -740,6 +746,28 @@ func saveModality(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 		w.Header().Set("Content-Type", "application/json")
 
 		json.NewEncoder(w).Encode(entity)
+
+	}
+
+}
+
+func countPromotions(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+	auth := r.Header.Get("Authorization");
+
+	user := repository.FindUserByToken(auth)
+
+	if user.Id <= 0 {
+
+		http.Error(w, "Auth failed", http.StatusUnauthorized)
+
+	}else{
+
+		result := repository.CountPromotions();
+
+		w.Header().Set("Content-Type", "application/json")
+
+		json.NewEncoder(w).Encode(result)
 
 	}
 

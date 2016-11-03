@@ -162,11 +162,13 @@ func saveStartAddress(position model.Position, db *sql.DB) (uuidString string){
 }
 
 
-func Selected(selected string) (uuidString string){
+func Selected(selected string, promotion string) (uuidString string){
 	
 	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah?charset=utf8&parseTime=True&loc=Local")
     //db, err := sql.Open("mysql", "root:Rafilkis1536*@tcp(localhost:3306)/vah?charset=utf8&parseTime=True&loc=Local")
 	
+    uuidString = selected;
+
 	if err != nil {
 
 	    panic(err.Error())
@@ -175,24 +177,48 @@ func Selected(selected string) (uuidString string){
 
 	defer db.Close()
 
-    stmtIns, err := db.Prepare("INSERT INTO search_selected(id_search_results, date_time_click) VALUES(?, ?)") 
+    if promotion != ""{
 
-    if err != nil {
+        stmtIns, err := db.Prepare("INSERT INTO search_selected(id_search_results, date_time_click, promotion) VALUES(?, ?, ?)") 
 
-        panic(err.Error())
+        if err != nil {
+
+            panic(err.Error())
+
+        }
+
+        _, err = stmtIns.Exec(selected, time.Now(), promotion)
+        
+        if err != nil {
+
+        	panic(err.Error())
+
+        }
+        
+        defer stmtIns.Close()
+
+    }else{
+
+        stmtIns, err := db.Prepare("INSERT INTO search_selected(id_search_results, date_time_click) VALUES(?, ?)") 
+
+        if err != nil {
+
+            panic(err.Error())
+
+        }
+
+        _, err = stmtIns.Exec(selected, time.Now())
+        
+        if err != nil {
+
+            panic(err.Error())
+
+        }
+        
+        defer stmtIns.Close()
 
     }
 
-    _, err = stmtIns.Exec(selected, time.Now())
-    
-    if err != nil {
-
-    	panic(err.Error())
-
-    }
-    
-    defer stmtIns.Close()
-
-    return selected
+    return uuidString
 
 }

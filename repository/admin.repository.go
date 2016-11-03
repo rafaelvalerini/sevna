@@ -224,6 +224,7 @@ func FindAnalytics(state string, city string, player string, modality string, st
                 "p.name as Player, "+
                 "selected.id_modality as Modality, "+
                 "selected.tax_value as Value, "+
+                "selected.promotion as Promotion, " +
                 "c.operation_system as OperationSystem, "+
                 "startAddress.city as StartCity, "+
                 "startAddress.state as StartState, "+
@@ -247,7 +248,8 @@ func FindAnalytics(state string, city string, player string, modality string, st
                         "res.id_search as id_search, "+
                         "res.id_player as id_player, "+
                         "res.modality as id_modality, "+
-                        "res.tax_value as tax_value "+
+                        "res.tax_value as tax_value, "+
+                        "se.promotion as promotion " + 
                     "from "+
                         "search_results res inner join search_selected se on "+
                         "se.id_search_results = res.id "+
@@ -308,13 +310,17 @@ func FindAnalytics(state string, city string, player string, modality string, st
 
         var valueResult []byte
 
-        err = rows.Scan(&res.DateTime, &res.StartAddress, &res.EndAddress, &playerResult, &modalityResult, &valueResult, &res.OperationSystem, &res.StartCity, &res.StartState, &res.EndCity, &res.EndState, &res.OperationSystemVersion, &res.TypeConnection)
+        var promotion []byte
+
+        err = rows.Scan(&res.DateTime, &res.StartAddress, &res.EndAddress, &playerResult, &modalityResult, &valueResult, &promotion, &res.OperationSystem, &res.StartCity, &res.StartState, &res.EndCity, &res.EndState, &res.OperationSystemVersion, &res.TypeConnection)
 
         res.Player = string(playerResult)
 
         res.Modality = string(modalityResult)
 
         res.Value = string(valueResult)
+
+        res.Promotion = string(promotion)
 
         result = append(result, res)
 
@@ -323,5 +329,49 @@ func FindAnalytics(state string, city string, player string, modality string, st
     defer db.Close()
 
     return result
+
+}
+
+func CountPromotions() (modalities []model.MoreUser){
+
+    db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah?charset=utf8&parseTime=True&loc=Local")
+    //db, err := sql.Open("mysql", "root:Rafilkis1536*@tcp(localhost:3306)/vah?charset=utf8&parseTime=True&loc=Local")
+    
+    if err != nil {
+
+        panic(err)
+
+    }
+
+    rows, err := db.Query("select count(s.id) as count, s.promotion as promotion from search_selected s where s.promotion is not null group by s.promotion") 
+
+    if err != nil {
+
+       fmt.Println(err)
+
+        os.Exit(1)
+
+    }
+
+    for rows.Next() {
+
+        var promotion string
+
+        var count int64
+
+        err = rows.Scan(&count, &promotion)
+
+        element := model.MoreUser{
+                Modality: promotion, 
+                Value: count,
+            }
+
+        modalities = append(modalities, element)
+
+    }
+    
+    defer db.Close()
+
+    return modalities
 
 }

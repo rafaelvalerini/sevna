@@ -54,4 +54,6 @@ type ResultAnalytics struct{
     StartState string `json:"start_state,omitempty"`
     EndCity string `json:"end_city,omitempty"`
     EndState string `json:"end_state,omitempty"`
+    Promotion string `json:"promotion,omitempty"`
+
 }
