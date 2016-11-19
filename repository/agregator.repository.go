@@ -9,6 +9,7 @@ import(
 	"os"
 	"strings"
 	"time"
+    "strconv"
 )
 
 func SaveSearch(agregator model.Aggregator, request model.RequestAggregator) {
@@ -162,7 +163,7 @@ func saveStartAddress(position model.Position, db *sql.DB) (uuidString string){
 }
 
 
-func Selected(selected string, promotion string) (uuidString string){
+func Selected(selected string, promotion string, store string) (uuidString string){
 	
 	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah?charset=utf8&parseTime=True&loc=Local")
     //db, err := sql.Open("mysql", "root:Rafilkis1536*@tcp(localhost:3306)/vah?charset=utf8&parseTime=True&loc=Local")
@@ -177,9 +178,24 @@ func Selected(selected string, promotion string) (uuidString string){
 
 	defer db.Close()
 
+    typeOpen := 1
+
+    if store != ""{
+
+        typeOpen, err = strconv.Atoi(store) 
+
+        if err != nil{
+
+            panic(err.Error())
+
+        }
+
+    }
+
+
     if promotion != ""{
 
-        stmtIns, err := db.Prepare("INSERT INTO search_selected(id_search_results, date_time_click, promotion) VALUES(?, ?, ?)") 
+        stmtIns, err := db.Prepare("INSERT INTO search_selected(id_search_results, date_time_click, promotion, type_open) VALUES(?, ?, ?, ?)") 
 
         if err != nil {
 
@@ -187,7 +203,7 @@ func Selected(selected string, promotion string) (uuidString string){
 
         }
 
-        _, err = stmtIns.Exec(selected, time.Now(), promotion)
+        _, err = stmtIns.Exec(selected, time.Now(), promotion, typeOpen)
         
         if err != nil {
 
@@ -199,7 +215,7 @@ func Selected(selected string, promotion string) (uuidString string){
 
     }else{
 
-        stmtIns, err := db.Prepare("INSERT INTO search_selected(id_search_results, date_time_click) VALUES(?, ?)") 
+        stmtIns, err := db.Prepare("INSERT INTO search_selected(id_search_results, date_time_click, type_open) VALUES(?, ?, ?)") 
 
         if err != nil {
 
@@ -207,7 +223,7 @@ func Selected(selected string, promotion string) (uuidString string){
 
         }
 
-        _, err = stmtIns.Exec(selected, time.Now())
+        _, err = stmtIns.Exec(selected, time.Now(), typeOpen)
         
         if err != nil {
 

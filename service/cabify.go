@@ -75,6 +75,8 @@ func processEstimatesCabify(estimate model.ResponseCabify, player model.Player) 
 
 		m.WaitingTime = time
 
+		m.AlertMessage = player.AlertMessage;
+
 		response = append(response, m)
 
 	}

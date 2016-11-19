@@ -47,6 +47,7 @@ type Player struct{
 	PopupMultiplier string `json:"popup_multiplier,omitempty"`
 	Active int `json:"active,omitempty"`
 	Token string `json:"token,omitempty"`
+	AlertMessage string `json:"alert_message,omitempty"`
 }
 
 type Modality struct{
