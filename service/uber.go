@@ -111,6 +111,8 @@ func processEstimates(products model.ResponseProduct, times model.ResponseTime, 
 
 			m.Modality = modality
 
+			m.AlertMessage = player.AlertMessage;
+
 			for  _,price := range prices.Prices {
 				
 				if product.ProductID == price.ProductID {

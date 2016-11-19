@@ -157,7 +157,7 @@ func FindAllPlayers() (players []model.Player){
 
 	}
 
-	rows, err := db.Query("select p.id, p.name, m.id, m.name, m.price_km, m.time_km, mc.zip_code_initial, mc.zip_code_final, m.price_base, m.price_time, m.minimum_price, p.active, m.active, m.edit_values, p.token, m.key_api  " + 
+	rows, err := db.Query("select p.id, p.name, m.id, m.name, m.price_km, m.time_km, mc.zip_code_initial, mc.zip_code_final, m.price_base, m.price_time, m.minimum_price, p.active, m.active, m.edit_values, p.token, m.key_api, p.alert_message  " + 
 							"from player p " +
 								"left join modality m on p.id = m.id_player " +
 								"left join modality_coverage mc on m.id = mc.id_modality ") 
@@ -204,7 +204,9 @@ func FindAllPlayers() (players []model.Player){
 
         var keyApi string
 
-        err = rows.Scan(&playerId, &playerName, &modalityId, &modalityName, &modalityPrice, &modalityTime, &zipCodeInitial, &zipCodeFinal, &priceBase, &priceTime, &priceMinimum, &activePlayer, &activeModality, &editValues, &token, &keyApi)
+        var alertMessage []byte
+
+        err = rows.Scan(&playerId, &playerName, &modalityId, &modalityName, &modalityPrice, &modalityTime, &zipCodeInitial, &zipCodeFinal, &priceBase, &priceTime, &priceMinimum, &activePlayer, &activeModality, &editValues, &token, &keyApi, &alertMessage)
 
         if err != nil{
 
@@ -345,7 +347,7 @@ func FindAllPlayers() (players []model.Player){
 					},
 				}
 
-				players = append(players, model.Player{Id: playerId, Name: playerName, Active: activePlayer, Token: token, Modalities: []model.Modality{modalityExists}});
+				players = append(players, model.Player{Id: playerId, Name: playerName, Active: activePlayer, Token: token, Modalities: []model.Modality{modalityExists}, AlertMessage: string(alertMessage)});
 
         	}
 
@@ -370,7 +372,7 @@ func FindAllPlayers() (players []model.Player){
 				},
 			}
 
-			players = append(players, model.Player{Id: playerId, Name: playerName, Active: activePlayer, Token: token, Modalities: []model.Modality{modalityExists}});
+			players = append(players, model.Player{Id: playerId, Name: playerName, Active: activePlayer, Token: token, Modalities: []model.Modality{modalityExists}, AlertMessage: string(alertMessage)});
 			
         }
 

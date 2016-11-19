@@ -85,6 +85,8 @@ func processEstimates99Taxi(estimate model.Response99Taxi, player99 model.Player
 
 		m.Price = "R$" + est.LowerFare + "-" + est.UpperFare
 
+		m.AlertMessage = player99.AlertMessage;
+
 		response = append(response, m)
 
 		playerEasyReturn := getEasy(m, playerEasy)
@@ -122,6 +124,8 @@ func getEasy(m model.Player, playerEasy model.Player) (playerReturn model.Player
 	playerResult.Modality.Id = strings.Replace(string(uuid2[:]),"\n","",-1)
 
 	playerResult.Price = m.Price
+
+	playerResult.AlertMessage = playerEasy.AlertMessage
 
 	switch m.Modality.Name{
 	    case "99 POP" :

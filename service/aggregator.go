@@ -66,9 +66,9 @@ func AgregateAll(request model.RequestAggregator) (agregator model.Aggregator){
 
         defer wg.Done()
 
-        player99 := GetPlayer(players, 3);
+        player99 := GetPlayer(players, 3)
 
-        playerEasy := GetPlayer(players, 4);
+        playerEasy := GetPlayer(players, 4)
 
 		defaults := GetEstimates99TaxiAndEasy(request.Start.Lat, request.Start.Lng, request.End.Lat, request.End.Lng, request.Duration, request.Distance, player99, playerEasy)
 
