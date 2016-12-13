@@ -89,7 +89,7 @@ type Available struct{
 }
 
 type Promotion struct{
-	Id string `json:"id,omitempty"`
+	Id int `json:"id,omitempty"`
 	Off float64 `json:"off,omitempty"`
 	LimitOff float64 `json:"limit_off,omitempty"`
 	Name string `json:"name,omitempty"`
@@ -102,6 +102,14 @@ type Promotion struct{
 	EndDate string `json:"end_at,omitempty"`
 	Modality string `json:"modality_name,omitempty"`
 	NewModality int `json:"new_modality,omitempty"`
+	Modalities []ModalitySimple `json:"modalities,omitempty"`
+	Active int `json:"active,omitempty"`
+}
+
+type ModalitySimple struct{
+	Id string `json:"id,omitempty"`
+	Name string `json:"name,omitempty"`
+	Player int `json:"player,omitempty"`
 }
 
 type MoreUser struct{

@@ -77,7 +77,7 @@ func SearchPlayersDefault(position model.Position) (players []model.Player){
         var priceTime float64
         var priceMinimum float64
         var timeKm int
-        var idPromo string
+        var idPromo int
         var namePromo string
         var off float64
         var promoCode string

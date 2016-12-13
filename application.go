@@ -52,11 +52,13 @@ func main() {
 
 	router.POST("/v1/player/:player/modality/", saveModality)
 
-	router.POST("/v1/player/:player/modality/:modality/promotion", savePromotion)
+	router.POST("/v1/promotion", savePromotion)
 
 	router.POST("/v1/promotion/:promotion/delete", deletePromotion)
 
 	router.GET("/v1/player/:player/modality/:modality/promotions", findPromotion)
+
+	router.GET("/v1/promotions", getAllPromotions)
 
 	router.GET("/v1/states", getAllStates)
 
@@ -509,39 +511,15 @@ func savePromotion(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 
 	json.NewDecoder(r.Body).Decode(&entity)
 
-	player, err := strconv.Atoi(ps.ByName("player"))
-
-	if err != nil {
-
-		http.Error(w, "Player not found", http.StatusBadRequest)
-
-	}
-
-	modality, err := strconv.Atoi(ps.ByName("modality"))
-
-	if err != nil {
-
-		http.Error(w, "Modality not found", http.StatusBadRequest)
-
-	}
-
 	user := repository.FindUserByToken(auth)
 
 	if user.Id <= 0 {
 
 		http.Error(w, "Auth failed", http.StatusUnauthorized)
 
-	}else if entity.Name == ""{
-
-		http.Error(w, "Name not found", http.StatusBadRequest)
-
-	}else if player <= 0 || modality <= 0{
-
-		http.Error(w, "Player and Modality not found", http.StatusBadRequest)
-
 	}else{
 
-		repository.SavePromotion(entity, modality);
+		repository.SavePromotion(entity);
 
 		w.Header().Set("Content-Type", "application/json")
 
@@ -766,6 +744,28 @@ func countPromotions(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 	}else{
 
 		result := repository.CountPromotions();
+
+		w.Header().Set("Content-Type", "application/json")
+
+		json.NewEncoder(w).Encode(result)
+
+	}
+
+}
+
+func getAllPromotions(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+	auth := r.Header.Get("Authorization");
+
+	user := repository.FindUserByToken(auth)
+
+	if user.Id <= 0 {
+
+		http.Error(w, "Auth failed", http.StatusUnauthorized)
+
+	}else{
+
+		result := repository.FindAllPromotionsGroupModality();
 
 		w.Header().Set("Content-Type", "application/json")
 
