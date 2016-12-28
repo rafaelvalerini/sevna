@@ -1,30 +1,29 @@
 package service
 
-import(
+import (
 	"agregador/model"
 	"agregador/repository"
-	"os/exec"
 	"fmt"
 	"os"
-	"strings"
+	"os/exec"
 	"runtime"
+	"strings"
 	"sync"
-	
 )
 
-func AgregateAll(request model.RequestAggregator) (agregator model.Aggregator){
-	
+func AgregateAll(request model.RequestAggregator) (agregator model.Aggregator) {
+
 	uuid, err := exec.Command("uuidgen").Output()
 
-	if err != nil{
+	if err != nil {
 		fmt.Println(err)
- 		os.Exit(1)
+		os.Exit(1)
 	}
 
 	aggregate := model.Aggregator{
 		Start: request.Start,
-		End: request.End,
-		Id: strings.Replace(string(uuid[:]),"\n","",-1),
+		End:   request.End,
+		Id:    strings.Replace(string(uuid[:]), "\n", "", -1),
 	}
 
 	players := repository.FindAllPlayers()
@@ -33,16 +32,16 @@ func AgregateAll(request model.RequestAggregator) (agregator model.Aggregator){
 
 	var wg sync.WaitGroup
 
-    wg.Add(3)
+	wg.Add(3)
 
- 	go func() {
-        defer wg.Done()
+	go func() {
+		defer wg.Done()
 
-        playerUber := GetPlayer(players, 1);
+		playerUber := GetPlayer(players, 1)
 
 		ubbers := GetEstimatesUber(request.Start.Lat, request.Start.Lng, request.End.Lat, request.End.Lng, playerUber)
 
-		for _,element := range ubbers {
+		for _, element := range ubbers {
 			aggregate.Players = append(aggregate.Players, element)
 		}
 
@@ -50,13 +49,13 @@ func AgregateAll(request model.RequestAggregator) (agregator model.Aggregator){
 
 	go func() {
 
-        defer wg.Done()
+		defer wg.Done()
 
-        playerCabify := GetPlayer(players, 2);
+		playerCabify := GetPlayer(players, 2)
 
 		cabifys := GetEstimatesCabify(request.Start.Lat, request.Start.Lng, request.End.Lat, request.End.Lng, playerCabify)
 
-		for _,element := range cabifys {
+		for _, element := range cabifys {
 			aggregate.Players = append(aggregate.Players, element)
 		}
 
@@ -64,15 +63,15 @@ func AgregateAll(request model.RequestAggregator) (agregator model.Aggregator){
 
 	go func() {
 
-        defer wg.Done()
+		defer wg.Done()
 
-        player99 := GetPlayer(players, 3)
+		player99 := GetPlayer(players, 3)
 
-        playerEasy := GetPlayer(players, 4)
+		playerEasy := GetPlayer(players, 4)
 
 		defaults := GetEstimates99TaxiAndEasy(request.Start.Lat, request.Start.Lng, request.End.Lat, request.End.Lng, request.Duration, request.Distance, player99, playerEasy)
 
-		for _,element := range defaults {
+		for _, element := range defaults {
 			aggregate.Players = append(aggregate.Players, element)
 		}
 
@@ -82,26 +81,21 @@ func AgregateAll(request model.RequestAggregator) (agregator model.Aggregator){
 
 	AddPromotions(aggregate.Players)
 
-	go func() {
-
-		repository.SaveSearch(aggregate, request)
-
-	}()
+	repository.SaveSearch(aggregate, request)
 
 	return aggregate
 }
 
+func GetModality(modalities []model.Modality, name string) (modality model.Modality) {
 
-func GetModality(modalities []model.Modality, name string) (modality model.Modality){
+	for _, mo := range modalities {
 
-	for _,mo := range modalities {
-
-		if mo.Name == name{
+		if mo.Name == name {
 
 			return mo
 
 		}
-		
+
 	}
 
 	return modality

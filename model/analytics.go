@@ -54,4 +54,5 @@ type ResultAnalytics struct {
 	EndState               string    `json:"end_state,omitempty"`
 	Promotion              string    `json:"promotion,omitempty"`
 	TypeOpen               int       `json:"type_open,omitempty"`
+	VersionApp             string    `json:"version_app,omitempty"`
 }

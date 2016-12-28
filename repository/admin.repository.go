@@ -231,7 +231,8 @@ func FindAnalytics(state string, city string, player string, modality string, st
 		"endAddress.state as EndState, "+
 		"c.operation_system_version as OperationSystemVersion, "+
 		"c.type_connection as TypeConnection, "+
-		"selected.type_open as TypeOpen "+
+		"selected.type_open as TypeOpen, "+
+		"c.version_app as VersionApp "+
 		"from "+
 		"( "+
 		"select "+
@@ -310,7 +311,9 @@ func FindAnalytics(state string, city string, player string, modality string, st
 
 		var promotion []byte
 
-		err = rows.Scan(&res.DateTime, &res.StartAddress, &res.EndAddress, &playerResult, &modalityResult, &valueResult, &promotion, &res.OperationSystem, &res.StartCity, &res.StartState, &res.EndCity, &res.EndState, &res.OperationSystemVersion, &res.TypeConnection, &res.TypeOpen)
+		var version []byte
+
+		err = rows.Scan(&res.DateTime, &res.StartAddress, &res.EndAddress, &playerResult, &modalityResult, &valueResult, &promotion, &res.OperationSystem, &res.StartCity, &res.StartState, &res.EndCity, &res.EndState, &res.OperationSystemVersion, &res.TypeConnection, &res.TypeOpen, &version)
 
 		res.Player = string(playerResult)
 
@@ -319,6 +322,8 @@ func FindAnalytics(state string, city string, player string, modality string, st
 		res.Value = string(valueResult)
 
 		res.Promotion = string(promotion)
+
+		res.VersionApp = string(version)
 
 		result = append(result, res)
 
