@@ -47,7 +47,7 @@ func SaveSearch(agregator model.Aggregator, request model.RequestAggregator) {
 
 func saveConfigDevice(searchBase string, device model.Device, db *sql.DB) {
 
-	stmtIns, err := db.Prepare("INSERT INTO config_device (id_device, operation_system, operation_system_version, device, type_connection, id_search) VALUES(?, ?, ?, ?, ?, ?)")
+	stmtIns, err := db.Prepare("INSERT INTO config_device (id_device, operation_system, operation_system_version, device, type_connection, id_search, version_app) VALUES(?, ?, ?, ?, ?, ?, ?)")
 
 	if err != nil {
 
@@ -55,7 +55,7 @@ func saveConfigDevice(searchBase string, device model.Device, db *sql.DB) {
 
 	}
 
-	_, err = stmtIns.Exec(device.IdDevice, device.OperationSystem, device.OperationSystemVersion, device.Device, device.TypeConnection, searchBase)
+	_, err = stmtIns.Exec(device.IdDevice, device.OperationSystem, device.OperationSystemVersion, device.Device, device.TypeConnection, searchBase, device.VersionApp)
 
 	if err != nil {
 
@@ -161,7 +161,7 @@ func saveStartAddress(position model.Position, db *sql.DB) (uuidString string) {
 
 }
 
-func Selected(selected string, promotion string, store string, version string) (uuidString string) {
+func Selected(selected string, promotion string, store string) (uuidString string) {
 
 	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah?charset=utf8&parseTime=True&loc=Local")
 	//db, err := sql.Open("mysql", "root:Rafilkis1536*@tcp(localhost:3306)/vah?charset=utf8&parseTime=True&loc=Local")
@@ -192,7 +192,7 @@ func Selected(selected string, promotion string, store string, version string) (
 
 	if promotion != "" {
 
-		stmtIns, err := db.Prepare("INSERT INTO search_selected(id_search_results, date_time_click, promotion, type_open, version_app) VALUES(?, ?, ?, ?, ?)")
+		stmtIns, err := db.Prepare("INSERT INTO search_selected(id_search_results, date_time_click, promotion, type_open) VALUES(?, ?, ?, ?)")
 
 		if err != nil {
 
@@ -200,7 +200,7 @@ func Selected(selected string, promotion string, store string, version string) (
 
 		}
 
-		_, err = stmtIns.Exec(selected, time.Now(), promotion, typeOpen, version)
+		_, err = stmtIns.Exec(selected, time.Now(), promotion, typeOpen)
 
 		if err != nil {
 
@@ -212,7 +212,7 @@ func Selected(selected string, promotion string, store string, version string) (
 
 	} else {
 
-		stmtIns, err := db.Prepare("INSERT INTO search_selected(id_search_results, date_time_click, type_open, version_app) VALUES(?, ?, ?, ?)")
+		stmtIns, err := db.Prepare("INSERT INTO search_selected(id_search_results, date_time_click, type_open) VALUES(?, ?, ?)")
 
 		if err != nil {
 
@@ -220,7 +220,7 @@ func Selected(selected string, promotion string, store string, version string) (
 
 		}
 
-		_, err = stmtIns.Exec(selected, time.Now(), typeOpen, version)
+		_, err = stmtIns.Exec(selected, time.Now(), typeOpen)
 
 		if err != nil {
 

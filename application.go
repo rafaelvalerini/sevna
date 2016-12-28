@@ -148,9 +148,7 @@ func selected(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 		store := q.Get("store")
 
-		version := q.Get("version")
-
-		result := repository.Selected(ps.ByName("selected"), promotion, store, version)
+		result := repository.Selected(ps.ByName("selected"), promotion, store)
 
 		w.Header().Set("Content-Type", "application/json")
 
