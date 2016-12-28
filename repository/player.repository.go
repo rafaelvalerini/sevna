@@ -1,21 +1,21 @@
 package repository
 
-import( 
-	"database/sql"
-	_ "github.com/go-sql-driver/mysql"
-	"fmt"
+import (
 	"agregador/model"
+	"database/sql"
+	"fmt"
+	_ "github.com/go-sql-driver/mysql"
 	"strconv"
 )
 
-func SavePlayer(entity model.Player) (model model.Player){
+func SavePlayer(entity model.Player) (model model.Player) {
 
 	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah?charset=utf8&parseTime=True&loc=Local")
-    //db, err := sql.Open("mysql", "root:Rafilkis1536*@tcp(localhost:3306)/vah?charset=utf8&parseTime=True&loc=Local")
-	
+	//db, err := sql.Open("mysql", "root:Rafilkis1536*@tcp(localhost:3306)/vah?charset=utf8&parseTime=True&loc=Local")
+
 	if err != nil {
 
-	    panic(err.Error())
+		panic(err.Error())
 
 	}
 
@@ -27,359 +27,359 @@ func SavePlayer(entity model.Player) (model model.Player){
 
 }
 
-func savePlayer(entity model.Player, db *sql.DB) (id int){
-	
-	stmtIns, err := db.Prepare("UPDATE player SET name = ?, active = ? where id = ?");
+func savePlayer(entity model.Player, db *sql.DB) (id int) {
 
-    if err != nil {
+	stmtIns, err := db.Prepare("UPDATE player SET name = ?, active = ? where id = ?")
 
-        panic(err.Error())
+	if err != nil {
 
-    }
+		panic(err.Error())
 
-    _, err = stmtIns.Exec(entity.Name, entity.Active, entity.Id)
+	}
 
-    if err != nil {
+	_, err = stmtIns.Exec(entity.Name, entity.Active, entity.Id)
 
-    	panic(err.Error())
+	if err != nil {
 
-    }
-       
-    defer stmtIns.Close()
+		panic(err.Error())
 
-    return entity.Id
+	}
+
+	defer stmtIns.Close()
+
+	return entity.Id
 
 }
 
 func SaveModality(modality model.Modality) {
-	
+
 	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah?charset=utf8&parseTime=True&loc=Local")
-    //db, err := sql.Open("mysql", "root:Rafilkis1536*@tcp(localhost:3306)/vah?charset=utf8&parseTime=True&loc=Local")
-	
+	//db, err := sql.Open("mysql", "root:Rafilkis1536*@tcp(localhost:3306)/vah?charset=utf8&parseTime=True&loc=Local")
+
 	if err != nil {
 
-	    panic(err.Error())
+		panic(err.Error())
 
 	}
 
 	defer db.Close()
 
-	stmtIns, err := db.Prepare("UPDATE modality SET active=? WHERE id=?");
+	stmtIns, err := db.Prepare("UPDATE modality SET active=? WHERE id=?")
 
-    if err != nil {
-
-        panic(err.Error())
-
-    }
-
-    _, err = stmtIns.Exec(modality.Active, modality.Id)
-
-    if err != nil {
-
-    	panic(err.Error())
-
-    }
-       
-    defer stmtIns.Close()
-
-}
-
-func DeletePlayer(playerId int64){
-	
-	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah?charset=utf8&parseTime=True&loc=Local")
-    //db, err := sql.Open("mysql", "root:Rafilkis1536*@tcp(localhost:3306)/vah?charset=utf8&parseTime=True&loc=Local")
-	
 	if err != nil {
 
-	    panic(err.Error())
+		panic(err.Error())
 
 	}
 
-	stmtIns, err := db.Prepare("DELETE FROM player where id = ?");
+	_, err = stmtIns.Exec(modality.Active, modality.Id)
 
-    if err != nil {
-
-        panic(err.Error())
-
-    }
-
-    _, err = stmtIns.Exec(playerId)
-
-    if err != nil {
-
-    	panic(err.Error())
-
-    }
-       
-    defer stmtIns.Close()
-
-}
-
-func DeleteModality(playerId int64, modality int64){
-	
-	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah?charset=utf8&parseTime=True&loc=Local")
-    //db, err := sql.Open("mysql", "root:Rafilkis1536*@tcp(localhost:3306)/vah?charset=utf8&parseTime=True&loc=Local")
-	
 	if err != nil {
 
-	    panic(err.Error())
+		panic(err.Error())
 
 	}
 
-	stmtIns, err := db.Prepare("DELETE FROM modality where id = ? and id_player = ?");
-
-    if err != nil {
-
-        panic(err.Error())
-
-    }
-
-    _, err = stmtIns.Exec(modality, playerId)
-
-    if err != nil {
-
-    	panic(err.Error())
-
-    }
-       
-    defer stmtIns.Close()
+	defer stmtIns.Close()
 
 }
 
-func FindAllPlayers() (players []model.Player){
+func DeletePlayer(playerId int64) {
 
 	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah?charset=utf8&parseTime=True&loc=Local")
-    //db, err := sql.Open("mysql", "root:Rafilkis1536*@tcp(localhost:3306)/vah?charset=utf8&parseTime=True&loc=Local")
-	
+	//db, err := sql.Open("mysql", "root:Rafilkis1536*@tcp(localhost:3306)/vah?charset=utf8&parseTime=True&loc=Local")
+
 	if err != nil {
 
-	    panic(err)
+		panic(err.Error())
 
 	}
 
-	rows, err := db.Query("select p.id, p.name, m.id, m.name, m.price_km, m.time_km, mc.zip_code_initial, mc.zip_code_final, m.price_base, m.price_time, m.minimum_price, p.active, m.active, m.edit_values, p.token, m.key_api, p.alert_message  " + 
-							"from player p " +
-								"left join modality m on p.id = m.id_player " +
-								"left join modality_coverage mc on m.id = mc.id_modality ") 
+	stmtIns, err := db.Prepare("DELETE FROM player where id = ?")
 
-    if err != nil {
+	if err != nil {
 
-       fmt.Println(err)
+		panic(err.Error())
 
-       return players
+	}
 
-    }
+	_, err = stmtIns.Exec(playerId)
 
-    for rows.Next() {
+	if err != nil {
 
-    	var playerId int
-    	
-    	var playerName string
-    	
-    	var modalityId int
-    	
-    	var modalityName string
-    	
-    	var modalityPrice float64
-    	
-    	var modalityTime int
-    	
-    	var zipCodeInitial []byte
-    	
-    	var zipCodeFinal []byte
+		panic(err.Error())
 
-    	var priceBase float64
-        
-        var priceTime float64
-        
-        var priceMinimum float64
+	}
 
-        var activePlayer int
+	defer stmtIns.Close()
 
-        var activeModality int
+}
 
-        var editValues int
+func DeleteModality(playerId int64, modality int64) {
 
-        var token string
+	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah?charset=utf8&parseTime=True&loc=Local")
+	//db, err := sql.Open("mysql", "root:Rafilkis1536*@tcp(localhost:3306)/vah?charset=utf8&parseTime=True&loc=Local")
 
-        var keyApi string
+	if err != nil {
 
-        var alertMessage []byte
+		panic(err.Error())
 
-        err = rows.Scan(&playerId, &playerName, &modalityId, &modalityName, &modalityPrice, &modalityTime, &zipCodeInitial, &zipCodeFinal, &priceBase, &priceTime, &priceMinimum, &activePlayer, &activeModality, &editValues, &token, &keyApi, &alertMessage)
+	}
 
-        if err != nil{
+	stmtIns, err := db.Prepare("DELETE FROM modality where id = ? and id_player = ?")
 
-        	fmt.Println(err)
+	if err != nil {
 
-       		return players
+		panic(err.Error())
 
-        }
+	}
 
-        var zipCodeFinalAux string
+	_, err = stmtIns.Exec(modality, playerId)
 
-        if zipCodeFinal != nil{
+	if err != nil {
 
-        	zipCodeFinalAux = string(zipCodeFinal) 
+		panic(err.Error())
 
-        }else{
+	}
 
-        	zipCodeFinalAux = "" 
+	defer stmtIns.Close()
 
-        }
+}
 
-        var zipCodeInitialAux string
+func FindAllPlayers() (players []model.Player) {
 
-        if zipCodeInitial != nil{
+	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah?charset=utf8&parseTime=True&loc=Local")
+	//db, err := sql.Open("mysql", "root:Rafilkis1536*@tcp(localhost:3306)/vah?charset=utf8&parseTime=True&loc=Local")
 
-        	zipCodeInitialAux = string(zipCodeInitial) 
+	if err != nil {
 
-        }else{
+		panic(err)
 
-        	zipCodeInitialAux = "" 
+	}
 
-        }
+	rows, err := db.Query("select p.id, p.name, m.id, m.name, m.price_km, m.time_km, mc.zip_code_initial, mc.zip_code_final, m.price_base, m.price_time, m.minimum_price, p.active, m.active, m.edit_values, p.token, m.key_api, p.alert_message  " +
+		"from player p " +
+		"left join modality m on p.id = m.id_player " +
+		"left join modality_coverage mc on m.id = mc.id_modality ")
 
-        if len(players) > 0{
+	if err != nil {
 
-        	var playerExists model.Player
+		fmt.Println(err)
 
-        	for idx,_ := range players {
+		return players
 
-        		if players[idx].Id == playerId{
+	}
 
-        			playerExists = players[idx]
+	for rows.Next() {
 
-        			var modalityExists model.Modality
+		var playerId int
 
-        			if len(playerExists.Modalities) > 0 {
+		var playerName string
 
-        				for _,modality := range players[idx].Modalities {
+		var modalityId int
 
-        					if modality.Id == strconv.Itoa(modalityId) {
+		var modalityName string
 
-        						modalityExists = modality
+		var modalityPrice float64
 
-        						break
+		var modalityTime int
 
-        					}
+		var zipCodeInitial []byte
 
-        				}
+		var zipCodeFinal []byte
 
-        				modalityIdInt,_ := strconv.Atoi(modalityExists.Id)
+		var priceBase float64
 
-        				if modalityIdInt <= 0 {
+		var priceTime float64
 
-        					modalityExists = model.Modality{
-        						Id: strconv.Itoa(modalityId), 
-        						Name: modalityName, 
-        						PriceKm: modalityPrice, 
-        						TimeKm: modalityTime, 
-        						PriceBase: priceBase, 
-			                    PriceTime: priceTime, 
-			                    PriceMinimum: priceMinimum, 
-			                    Active: activeModality,
-                				EditValues: editValues,
-                                KeyApi: keyApi,
-        						ModalityCoverage: []model.Coverage{
-        							model.Coverage{
-        								ZipCodeInitial: zipCodeInitialAux, 
-        								ZipCodeFinal: zipCodeFinalAux,
-        							},
-        						},
-        					}
+		var priceMinimum float64
 
-        					players[idx].Modalities = append(players[idx].Modalities, modalityExists);
+		var activePlayer int
 
-        				}else{
+		var activeModality int
 
-        					modalityExists.ModalityCoverage = append(modalityExists.ModalityCoverage, model.Coverage{ZipCodeInitial: zipCodeInitialAux, ZipCodeFinal: zipCodeFinalAux});
+		var editValues int
 
-        				}
+		var token string
 
-        			}else{
+		var keyApi string
 
-        				modalityExists = model.Modality{
-    						Id: strconv.Itoa(modalityId), 
-    						Name: modalityName, 
-    						PriceKm: modalityPrice, 
-    						TimeKm: modalityTime, 
-    						PriceBase: priceBase, 
-		                    PriceTime: priceTime, 
-		                    PriceMinimum: priceMinimum, 
-		                    Active: activeModality,
-                			EditValues: editValues,
-                            KeyApi: keyApi,
-    						ModalityCoverage: []model.Coverage{
-    							model.Coverage{
-    								ZipCodeInitial: zipCodeInitialAux, 
-    								ZipCodeFinal: zipCodeFinalAux,
-    							},
-    						},
-    					}
+		var alertMessage []byte
 
-        				players[idx].Modalities = append(players[idx].Modalities, modalityExists);
+		err = rows.Scan(&playerId, &playerName, &modalityId, &modalityName, &modalityPrice, &modalityTime, &zipCodeInitial, &zipCodeFinal, &priceBase, &priceTime, &priceMinimum, &activePlayer, &activeModality, &editValues, &token, &keyApi, &alertMessage)
 
-        			}
+		if err != nil {
 
-        		}
+			fmt.Println(err)
 
-        	}
+			return players
 
-        	if playerExists.Id <= 0{
+		}
 
-        		modalityExists := model.Modality{
-					Id: strconv.Itoa(modalityId), 
-					Name: modalityName, 
-					PriceKm: modalityPrice, 
-					TimeKm: modalityTime, 
-					PriceBase: priceBase, 
-                    PriceTime: priceTime, 
-                    PriceMinimum: priceMinimum, 
-                    Active: activeModality,
-                	EditValues: editValues,
-                    KeyApi: keyApi,
+		var zipCodeFinalAux string
+
+		if zipCodeFinal != nil {
+
+			zipCodeFinalAux = string(zipCodeFinal)
+
+		} else {
+
+			zipCodeFinalAux = ""
+
+		}
+
+		var zipCodeInitialAux string
+
+		if zipCodeInitial != nil {
+
+			zipCodeInitialAux = string(zipCodeInitial)
+
+		} else {
+
+			zipCodeInitialAux = ""
+
+		}
+
+		if len(players) > 0 {
+
+			var playerExists model.Player
+
+			for idx, _ := range players {
+
+				if players[idx].Id == playerId {
+
+					playerExists = players[idx]
+
+					var modalityExists model.Modality
+
+					if len(playerExists.Modalities) > 0 {
+
+						for _, modality := range players[idx].Modalities {
+
+							if modality.Id == strconv.Itoa(modalityId) {
+
+								modalityExists = modality
+
+								break
+
+							}
+
+						}
+
+						modalityIdInt, _ := strconv.Atoi(modalityExists.Id)
+
+						if modalityIdInt <= 0 {
+
+							modalityExists = model.Modality{
+								Id:           strconv.Itoa(modalityId),
+								Name:         modalityName,
+								PriceKm:      modalityPrice,
+								TimeKm:       modalityTime,
+								PriceBase:    priceBase,
+								PriceTime:    priceTime,
+								PriceMinimum: priceMinimum,
+								Active:       activeModality,
+								EditValues:   editValues,
+								KeyApi:       keyApi,
+								ModalityCoverage: []model.Coverage{
+									model.Coverage{
+										ZipCodeInitial: zipCodeInitialAux,
+										ZipCodeFinal:   zipCodeFinalAux,
+									},
+								},
+							}
+
+							players[idx].Modalities = append(players[idx].Modalities, modalityExists)
+
+						} else {
+
+							modalityExists.ModalityCoverage = append(modalityExists.ModalityCoverage, model.Coverage{ZipCodeInitial: zipCodeInitialAux, ZipCodeFinal: zipCodeFinalAux})
+
+						}
+
+					} else {
+
+						modalityExists = model.Modality{
+							Id:           strconv.Itoa(modalityId),
+							Name:         modalityName,
+							PriceKm:      modalityPrice,
+							TimeKm:       modalityTime,
+							PriceBase:    priceBase,
+							PriceTime:    priceTime,
+							PriceMinimum: priceMinimum,
+							Active:       activeModality,
+							EditValues:   editValues,
+							KeyApi:       keyApi,
+							ModalityCoverage: []model.Coverage{
+								model.Coverage{
+									ZipCodeInitial: zipCodeInitialAux,
+									ZipCodeFinal:   zipCodeFinalAux,
+								},
+							},
+						}
+
+						players[idx].Modalities = append(players[idx].Modalities, modalityExists)
+
+					}
+
+				}
+
+			}
+
+			if playerExists.Id <= 0 {
+
+				modalityExists := model.Modality{
+					Id:           strconv.Itoa(modalityId),
+					Name:         modalityName,
+					PriceKm:      modalityPrice,
+					TimeKm:       modalityTime,
+					PriceBase:    priceBase,
+					PriceTime:    priceTime,
+					PriceMinimum: priceMinimum,
+					Active:       activeModality,
+					EditValues:   editValues,
+					KeyApi:       keyApi,
 					ModalityCoverage: []model.Coverage{
 						model.Coverage{
-							ZipCodeInitial: zipCodeInitialAux, 
-							ZipCodeFinal: zipCodeFinalAux,
+							ZipCodeInitial: zipCodeInitialAux,
+							ZipCodeFinal:   zipCodeFinalAux,
 						},
 					},
 				}
 
-				players = append(players, model.Player{Id: playerId, Name: playerName, Active: activePlayer, Token: token, Modalities: []model.Modality{modalityExists}, AlertMessage: string(alertMessage)});
+				players = append(players, model.Player{Id: playerId, Name: playerName, Active: activePlayer, Token: token, Modalities: []model.Modality{modalityExists}, AlertMessage: string(alertMessage)})
 
-        	}
+			}
 
-        }else{
+		} else {
 
-        	modalityExists := model.Modality{
-				Id: strconv.Itoa(modalityId), 
-				Name: modalityName, 
-				PriceKm: modalityPrice, 
-				TimeKm: modalityTime, 
-				PriceBase: priceBase, 
-                PriceTime: priceTime, 
-                PriceMinimum: priceMinimum, 
-                Active: activeModality,
-                EditValues: editValues,
-                KeyApi: keyApi,
+			modalityExists := model.Modality{
+				Id:           strconv.Itoa(modalityId),
+				Name:         modalityName,
+				PriceKm:      modalityPrice,
+				TimeKm:       modalityTime,
+				PriceBase:    priceBase,
+				PriceTime:    priceTime,
+				PriceMinimum: priceMinimum,
+				Active:       activeModality,
+				EditValues:   editValues,
+				KeyApi:       keyApi,
 				ModalityCoverage: []model.Coverage{
 					model.Coverage{
-						ZipCodeInitial: zipCodeInitialAux, 
-						ZipCodeFinal: zipCodeFinalAux,
+						ZipCodeInitial: zipCodeInitialAux,
+						ZipCodeFinal:   zipCodeFinalAux,
 					},
 				},
 			}
 
-			players = append(players, model.Player{Id: playerId, Name: playerName, Active: activePlayer, Token: token, Modalities: []model.Modality{modalityExists}, AlertMessage: string(alertMessage)});
-			
-        }
+			players = append(players, model.Player{Id: playerId, Name: playerName, Active: activePlayer, Token: token, Modalities: []model.Modality{modalityExists}, AlertMessage: string(alertMessage)})
 
-    }
-    
-    defer db.Close()
+		}
 
-    return players
+	}
+
+	defer db.Close()
+
+	return players
 
 }
