@@ -1,29 +1,29 @@
 package main
 
 import (
-	"agregador/service"
 	"agregador/model"
 	"agregador/repository"
+	"agregador/service"
 	"encoding/json"
 	"github.com/julienschmidt/httprouter"
+	"github.com/remind101/newrelic"
 	"github.com/rs/cors"
 	"log"
 	"net/http"
 	"strconv"
-	"github.com/remind101/newrelic"
 )
 
 func main() {
 
 	newrelic.Init("VAH-GOLANG", "d8fd304dc5c8d8ddab8ee4471263c21ccd989ceb")
-    tx := newrelic.NewTx("/v1/estima")
-    tx.Start()
-    defer tx.End()
+	tx := newrelic.NewTx("/v1/estima")
+	tx.Start()
+	defer tx.End()
 
 	router := httprouter.New()
 
 	router.GET("/v1/ping", pong)
-	
+
 	router.POST("/v1/estimates", estimate)
 
 	router.POST("/v1/estimate/selected/:selected", selected)
@@ -69,9 +69,9 @@ func main() {
 	router.GET("/v1/estimates/promotions/count", countPromotions)
 
 	c := cors.New(cors.Options{
-	    AllowedOrigins: []string{"*"},
-	    AllowCredentials: true,
-	    AllowedHeaders: []string{"Content-Type", "Authorization"},
+		AllowedOrigins:   []string{"*"},
+		AllowCredentials: true,
+		AllowedHeaders:   []string{"Content-Type", "Authorization"},
 	})
 
 	handler := c.Handler(router)
@@ -90,33 +90,33 @@ func pong(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 func estimate(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
-	auth := r.Header.Get("Authorization");
+	auth := r.Header.Get("Authorization")
 
 	entity := model.RequestAggregator{}
 
 	json.NewDecoder(r.Body).Decode(&entity)
 
-	if auth != "65edc9b5-d134-4c8b-9be5-ee2c722f4a54"{
+	if auth != "65edc9b5-d134-4c8b-9be5-ee2c722f4a54" {
 
 		http.Error(w, "Auth failed", http.StatusUnauthorized)
 
-	}else if entity.Start.Lat == 0 {
+	} else if entity.Start.Lat == 0 {
 
 		http.Error(w, "Start Latitude not found", http.StatusBadRequest)
 
-	}else if entity.Start.Lng == 0 {
+	} else if entity.Start.Lng == 0 {
 
 		http.Error(w, "Start Longitude not found", http.StatusBadRequest)
 
-	}else if entity.End.Lat == 0 {
+	} else if entity.End.Lat == 0 {
 
 		http.Error(w, "End Latitude not found", http.StatusBadRequest)
 
-	}else if entity.End.Lng == 0 {
+	} else if entity.End.Lng == 0 {
 
 		http.Error(w, "End Longitude not found", http.StatusBadRequest)
 
-	}else{
+	} else {
 
 		result := service.AgregateAll(entity)
 
@@ -130,17 +130,17 @@ func estimate(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 func selected(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
-	auth := r.Header.Get("Authorization");
+	auth := r.Header.Get("Authorization")
 
 	if auth != "65edc9b5-d134-4c8b-9be5-ee2c722f4a54" {
 
 		http.Error(w, "Auth failed", http.StatusUnauthorized)
 
-	}else if ps.ByName("selected") == "" {
+	} else if ps.ByName("selected") == "" {
 
 		http.Error(w, "Selected not found", http.StatusBadRequest)
 
-	}else{
+	} else {
 
 		q := r.URL.Query()
 
@@ -148,7 +148,7 @@ func selected(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 		store := q.Get("store")
 
-		result := repository.Selected(ps.ByName("selected"), promotion, store);
+		result := repository.Selected(ps.ByName("selected"), promotion, store)
 
 		w.Header().Set("Content-Type", "application/json")
 
@@ -160,7 +160,7 @@ func selected(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 func auth(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
-	auth := r.Header.Get("Authorization");
+	auth := r.Header.Get("Authorization")
 
 	q := r.URL.Query()
 
@@ -172,19 +172,19 @@ func auth(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 		http.Error(w, "Auth failed", http.StatusUnauthorized)
 
-	}else if password == "" || mail == ""{
+	} else if password == "" || mail == "" {
 
 		http.Error(w, "User or Password not found", http.StatusBadRequest)
 
-	}else{
+	} else {
 
-		result := repository.Login(mail, password);
+		result := repository.Login(mail, password)
 
 		if result.Id <= 0 {
-			
+
 			http.Error(w, "User or Password not found", http.StatusNotFound)
 
-		}else{
+		} else {
 
 			w.Header().Set("Content-Type", "application/json")
 
@@ -198,7 +198,7 @@ func auth(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 func resetPassword(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
-	auth := r.Header.Get("Authorization");
+	auth := r.Header.Get("Authorization")
 
 	q := r.URL.Query()
 
@@ -208,19 +208,19 @@ func resetPassword(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 
 		http.Error(w, "Auth failed", http.StatusUnauthorized)
 
-	}else if mail == ""{
+	} else if mail == "" {
 
 		http.Error(w, "Mail not found", http.StatusBadRequest)
 
-	}else{
+	} else {
 
-		result := service.ResetPassword(mail);
+		result := service.ResetPassword(mail)
 
 		if result.Id <= 0 {
-			
+
 			http.Error(w, "User or Password not found", http.StatusNotFound)
 
-		}else{
+		} else {
 
 			w.Header().Set("Content-Type", "application/json")
 
@@ -234,7 +234,7 @@ func resetPassword(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 
 func createUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
-	auth := r.Header.Get("Authorization");
+	auth := r.Header.Get("Authorization")
 
 	entity := model.User{}
 
@@ -244,23 +244,23 @@ func createUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 		http.Error(w, "Auth failed", http.StatusUnauthorized)
 
-	}else if entity.Mail == "" || entity.Password == ""{
+	} else if entity.Mail == "" || entity.Password == "" {
 
 		http.Error(w, "User or Password not found", http.StatusBadRequest)
 
-	}else{
+	} else {
 
-		result := repository.FindUserByMail(entity.Mail);
+		result := repository.FindUserByMail(entity.Mail)
 
-		if result.Id > 0{
+		if result.Id > 0 {
 
 			http.Error(w, "User already registered", http.StatusBadRequest)
 
-		}else{
+		} else {
 
 			repository.CreateUser(entity)
 
-			userFinal := repository.FindUserByMail(entity.Mail);
+			userFinal := repository.FindUserByMail(entity.Mail)
 
 			w.Header().Set("Content-Type", "application/json")
 
@@ -272,10 +272,9 @@ func createUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 }
 
-
 func countEstimates(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
-	auth := r.Header.Get("Authorization");
+	auth := r.Header.Get("Authorization")
 
 	user := repository.FindUserByToken(auth)
 
@@ -283,9 +282,9 @@ func countEstimates(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 
 		http.Error(w, "Auth failed", http.StatusUnauthorized)
 
-	}else{
+	} else {
 
-		result := repository.CountEstimates();
+		result := repository.CountEstimates()
 
 		w.Header().Set("Content-Type", "application/json")
 
@@ -297,7 +296,7 @@ func countEstimates(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 
 func countModalities(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
-	auth := r.Header.Get("Authorization");
+	auth := r.Header.Get("Authorization")
 
 	user := repository.FindUserByToken(auth)
 
@@ -305,9 +304,9 @@ func countModalities(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 
 		http.Error(w, "Auth failed", http.StatusUnauthorized)
 
-	}else{
+	} else {
 
-		result := repository.CountModalities();
+		result := repository.CountModalities()
 
 		w.Header().Set("Content-Type", "application/json")
 
@@ -319,7 +318,7 @@ func countModalities(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 
 func notification(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
-	auth := r.Header.Get("Authorization");
+	auth := r.Header.Get("Authorization")
 
 	entity := model.Message{}
 
@@ -331,11 +330,11 @@ func notification(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 
 		http.Error(w, "Auth failed", http.StatusUnauthorized)
 
-	}else if entity.Message == "" {
-		
+	} else if entity.Message == "" {
+
 		http.Error(w, "Message not found", http.StatusBadRequest)
 
-	}else{
+	} else {
 
 		q := r.URL.Query()
 
@@ -343,7 +342,7 @@ func notification(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 
 		city := q.Get("city")
 
-		result := service.SendNotification(state, city, entity.Message);
+		result := service.SendNotification(state, city, entity.Message)
 
 		w.Header().Set("Content-Type", "application/json")
 
@@ -355,7 +354,7 @@ func notification(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 
 func savedEstimates(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
-	auth := r.Header.Get("Authorization");
+	auth := r.Header.Get("Authorization")
 
 	user := repository.FindUserByToken(auth)
 
@@ -363,9 +362,9 @@ func savedEstimates(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 
 		http.Error(w, "Auth failed", http.StatusUnauthorized)
 
-	}else{
+	} else {
 
-		result := repository.SumSavedEstimates();
+		result := repository.SumSavedEstimates()
 
 		w.Header().Set("Content-Type", "application/json")
 
@@ -377,7 +376,7 @@ func savedEstimates(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 
 func savePlayer(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
-	auth := r.Header.Get("Authorization");
+	auth := r.Header.Get("Authorization")
 
 	entity := model.Player{}
 
@@ -389,13 +388,13 @@ func savePlayer(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 		http.Error(w, "Auth failed", http.StatusUnauthorized)
 
-	}else if entity.Name == ""{
+	} else if entity.Name == "" {
 
 		http.Error(w, "Name not found", http.StatusBadRequest)
 
-	}else{
+	} else {
 
-		repository.SavePlayer(entity);
+		repository.SavePlayer(entity)
 
 		w.Header().Set("Content-Type", "application/json")
 
@@ -407,7 +406,7 @@ func savePlayer(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 func deletePlayer(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
-	auth := r.Header.Get("Authorization");
+	auth := r.Header.Get("Authorization")
 
 	player, err := strconv.Atoi(ps.ByName("player"))
 
@@ -423,13 +422,13 @@ func deletePlayer(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 
 		http.Error(w, "Auth failed", http.StatusUnauthorized)
 
-	}else if player <= 0{
+	} else if player <= 0 {
 
 		http.Error(w, "Player not found", http.StatusBadRequest)
 
-	}else{
+	} else {
 
-		repository.DeletePlayer(int64(player));
+		repository.DeletePlayer(int64(player))
 
 		w.Header().Set("Content-Type", "application/json")
 
@@ -441,7 +440,7 @@ func deletePlayer(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 
 func deleteModality(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
-	auth := r.Header.Get("Authorization");
+	auth := r.Header.Get("Authorization")
 
 	player, err := strconv.Atoi(ps.ByName("player"))
 
@@ -465,13 +464,13 @@ func deleteModality(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 
 		http.Error(w, "Auth failed", http.StatusUnauthorized)
 
-	}else if player <= 0 || modality <= 0{
+	} else if player <= 0 || modality <= 0 {
 
 		http.Error(w, "Player not found", http.StatusBadRequest)
 
-	}else{
+	} else {
 
-		repository.DeleteModality(int64(player), int64(modality));
+		repository.DeleteModality(int64(player), int64(modality))
 
 		w.Header().Set("Content-Type", "application/json")
 
@@ -483,7 +482,7 @@ func deleteModality(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 
 func findPlayers(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
-	auth := r.Header.Get("Authorization");
+	auth := r.Header.Get("Authorization")
 
 	user := repository.FindUserByToken(auth)
 
@@ -491,9 +490,9 @@ func findPlayers(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 		http.Error(w, "Auth failed", http.StatusUnauthorized)
 
-	}else{
+	} else {
 
-		result := repository.FindAllPlayers();
+		result := repository.FindAllPlayers()
 
 		w.Header().Set("Content-Type", "application/json")
 
@@ -505,7 +504,7 @@ func findPlayers(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 func savePromotion(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
-	auth := r.Header.Get("Authorization");
+	auth := r.Header.Get("Authorization")
 
 	entity := model.Promotion{}
 
@@ -517,9 +516,9 @@ func savePromotion(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 
 		http.Error(w, "Auth failed", http.StatusUnauthorized)
 
-	}else{
+	} else {
 
-		repository.SavePromotion(entity);
+		repository.SavePromotion(entity)
 
 		w.Header().Set("Content-Type", "application/json")
 
@@ -531,7 +530,7 @@ func savePromotion(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 
 func deletePromotion(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
-	auth := r.Header.Get("Authorization");
+	auth := r.Header.Get("Authorization")
 
 	promotion, err := strconv.Atoi(ps.ByName("promotion"))
 
@@ -547,13 +546,13 @@ func deletePromotion(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 
 		http.Error(w, "Auth failed", http.StatusUnauthorized)
 
-	}else if promotion <= 0{
+	} else if promotion <= 0 {
 
 		http.Error(w, "Promotion not found", http.StatusBadRequest)
 
-	}else{
+	} else {
 
-		repository.DeletePromotion(promotion);
+		repository.DeletePromotion(promotion)
 
 		w.Header().Set("Content-Type", "application/json")
 
@@ -565,7 +564,7 @@ func deletePromotion(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 
 func findPromotion(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
-	auth := r.Header.Get("Authorization");
+	auth := r.Header.Get("Authorization")
 
 	player, err := strconv.Atoi(ps.ByName("player"))
 
@@ -589,13 +588,13 @@ func findPromotion(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 
 		http.Error(w, "Auth failed", http.StatusUnauthorized)
 
-	}else if player <= 0 || modality <= 0{
+	} else if player <= 0 || modality <= 0 {
 
 		http.Error(w, "Player and Modality not found", http.StatusBadRequest)
 
-	}else{
+	} else {
 
-		result := repository.FindPromotion(player, modality);
+		result := repository.FindPromotion(player, modality)
 
 		w.Header().Set("Content-Type", "application/json")
 
@@ -607,7 +606,7 @@ func findPromotion(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 
 func getAllStates(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
-	auth := r.Header.Get("Authorization");
+	auth := r.Header.Get("Authorization")
 
 	user := repository.FindUserByToken(auth)
 
@@ -615,9 +614,9 @@ func getAllStates(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 
 		http.Error(w, "Auth failed", http.StatusUnauthorized)
 
-	}else{
+	} else {
 
-		result := repository.FindAllStates();
+		result := repository.FindAllStates()
 
 		w.Header().Set("Content-Type", "application/json")
 
@@ -629,7 +628,7 @@ func getAllStates(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 
 func getCityByState(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
-	auth := r.Header.Get("Authorization");
+	auth := r.Header.Get("Authorization")
 
 	state, err := strconv.Atoi(ps.ByName("state"))
 
@@ -645,11 +644,11 @@ func getCityByState(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 
 		http.Error(w, "Auth failed", http.StatusUnauthorized)
 
-	}else if state <= 0{
+	} else if state <= 0 {
 
 		http.Error(w, "State not found", http.StatusBadRequest)
 
-	}else{
+	} else {
 
 		result := repository.FindCityByState(state)
 
@@ -663,7 +662,7 @@ func getCityByState(w http.ResponseWriter, r *http.Request, ps httprouter.Params
 
 func getAnalytics(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
-	auth := r.Header.Get("Authorization");
+	auth := r.Header.Get("Authorization")
 
 	user := repository.FindUserByToken(auth)
 
@@ -677,11 +676,11 @@ func getAnalytics(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 
 		http.Error(w, "Auth failed", http.StatusUnauthorized)
 
-	}else if startAt == "" || endAt == ""{
+	} else if startAt == "" || endAt == "" {
 
 		http.Error(w, "Start Date and End Date not found", http.StatusBadRequest)
 
-	}else{
+	} else {
 
 		city := q.Get("city")
 
@@ -703,7 +702,7 @@ func getAnalytics(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 
 func saveModality(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
-	auth := r.Header.Get("Authorization");
+	auth := r.Header.Get("Authorization")
 
 	entity := model.Modality{}
 
@@ -715,13 +714,13 @@ func saveModality(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 
 		http.Error(w, "Auth failed", http.StatusUnauthorized)
 
-	}else if entity.Name == ""{
+	} else if entity.Name == "" {
 
 		http.Error(w, "Name not found", http.StatusBadRequest)
 
-	}else{
+	} else {
 
-		repository.SaveModality(entity);
+		repository.SaveModality(entity)
 
 		w.Header().Set("Content-Type", "application/json")
 
@@ -733,7 +732,7 @@ func saveModality(w http.ResponseWriter, r *http.Request, ps httprouter.Params) 
 
 func countPromotions(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
-	auth := r.Header.Get("Authorization");
+	auth := r.Header.Get("Authorization")
 
 	user := repository.FindUserByToken(auth)
 
@@ -741,9 +740,9 @@ func countPromotions(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 
 		http.Error(w, "Auth failed", http.StatusUnauthorized)
 
-	}else{
+	} else {
 
-		result := repository.CountPromotions();
+		result := repository.CountPromotions()
 
 		w.Header().Set("Content-Type", "application/json")
 
@@ -755,7 +754,7 @@ func countPromotions(w http.ResponseWriter, r *http.Request, ps httprouter.Param
 
 func getAllPromotions(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
-	auth := r.Header.Get("Authorization");
+	auth := r.Header.Get("Authorization")
 
 	user := repository.FindUserByToken(auth)
 
@@ -763,9 +762,9 @@ func getAllPromotions(w http.ResponseWriter, r *http.Request, ps httprouter.Para
 
 		http.Error(w, "Auth failed", http.StatusUnauthorized)
 
-	}else{
+	} else {
 
-		result := repository.FindAllPromotionsGroupModality();
+		result := repository.FindAllPromotionsGroupModality()
 
 		w.Header().Set("Content-Type", "application/json")
 
