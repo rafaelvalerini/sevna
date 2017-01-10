@@ -47,6 +47,7 @@ type Player struct {
 	Active          int        `json:"active,omitempty"`
 	Token           string     `json:"token,omitempty"`
 	AlertMessage    string     `json:"alert_message,omitempty"`
+	Url             string     `json:"url,omitempty"`
 }
 
 type Modality struct {
