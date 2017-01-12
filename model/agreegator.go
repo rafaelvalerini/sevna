@@ -48,6 +48,7 @@ type Player struct {
 	Token           string     `json:"token,omitempty"`
 	AlertMessage    string     `json:"alert_message,omitempty"`
 	Url             string     `json:"url,omitempty"`
+	Index           float64    `json:"index,omitempty"`
 }
 
 type Modality struct {
@@ -119,4 +120,18 @@ type MoreUser struct {
 
 type Message struct {
 	Message string `json:"message,omitempty"`
+}
+
+type Players []Player
+
+func (slice Players) Len() int {
+	return len(slice)
+}
+
+func (slice Players) Less(i, j int) bool {
+	return slice[i].Index < slice[j].Index
+}
+
+func (slice Players) Swap(i, j int) {
+	slice[i], slice[j] = slice[j], slice[i]
 }

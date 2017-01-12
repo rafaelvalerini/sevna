@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -113,6 +114,22 @@ func AgregateAllV2(request model.RequestAggregator) (agregator model.Aggregator)
 
 		elementNotPromo.Modality.Promotions = nil
 
+		arrayPrice := strings.Split(strings.Replace(strings.Replace(elementNotPromo.Price, "R$", "", -1), ",", ".", -1), "-")
+
+		if len(arrayPrice) > 1 {
+
+			priceFirst, _ := strconv.ParseFloat(strings.Replace(arrayPrice[0], ",", ".", -1), 64)
+
+			priceLast, _ := strconv.ParseFloat(strings.Replace(arrayPrice[1], ",", ".", -1), 64)
+
+			elementNotPromo.Index = ((priceFirst + priceLast) / float64(2))
+
+		} else {
+
+			elementNotPromo.Index, _ = strconv.ParseFloat(strings.Replace(arrayPrice[0], ",", ".", -1), 64)
+
+		}
+
 		players = append(players, elementNotPromo)
 
 		for _, promo := range element.Modality.Promotions {
@@ -122,8 +139,6 @@ func AgregateAllV2(request model.RequestAggregator) (agregator model.Aggregator)
 			element.Modality.Promotion = promo
 
 			elementWithPromo = validateAvailableAndCoverage(elementWithPromo, agregator.Start)
-
-			fmt.Println(elementWithPromo.Id)
 
 			if elementWithPromo.Id > 0 {
 
@@ -138,7 +153,13 @@ func AgregateAllV2(request model.RequestAggregator) (agregator model.Aggregator)
 		}
 	}
 
-	agregator.Players = players
+	var plyrs model.Players
+
+	plyrs = players
+
+	sort.Sort(plyrs)
+
+	agregator.Players = plyrs
 
 	return agregator
 
@@ -148,13 +169,13 @@ func applyPromotion(player model.Player) (playerTmp model.Player) {
 
 	arrayPrice := strings.Split(strings.Replace(player.Price, "R$", "", -1), "-")
 
-	price, _ := strconv.ParseFloat(arrayPrice[0], 64)
+	price, _ := strconv.ParseFloat(strings.Replace(arrayPrice[0], ",", ".", -1), 64)
 
 	priceFinal := float64(0)
 
 	if len(arrayPrice) > 1 {
 
-		priceFinal, _ = strconv.ParseFloat(arrayPrice[1], 64)
+		priceFinal, _ = strconv.ParseFloat(strings.Replace(arrayPrice[1], ",", ".", -1), 64)
 
 		offFinal := (float64(player.Modality.Promotion.Off) / float64(100) * priceFinal)
 
@@ -192,11 +213,15 @@ func applyPromotion(player model.Player) (playerTmp model.Player) {
 
 	if priceFinal > 0 {
 
-		player.Price = "R$" + strconv.FormatFloat(price, 'G', -1, 64) + "-" + strconv.FormatFloat((priceFinal+float64(1)), 'G', -1, 64)
+		player.Price = "R$" + strconv.Itoa(int(price)) + "-" + strconv.Itoa(int(priceFinal)+1)
+
+		player.Index = float64((price + (priceFinal + float64(1))) / float64(2))
 
 	} else {
 
-		player.Price = "R$" + strconv.FormatFloat(price, 'G', -1, 64) + "-" + strconv.FormatFloat((price+float64(1)), 'G', -1, 64)
+		player.Price = "R$" + strconv.Itoa(int(price)) + "-" + strconv.Itoa(int(price)+1)
+
+		player.Index = float64((price + (price + float64(1))) / float64(2))
 
 	}
 
@@ -289,8 +314,6 @@ func validateAvailableAndCoverage(element model.Player, origin model.Position) (
 	}
 
 	if availableOk {
-
-		fmt.Println(len(element.Modality.Promotion.PromotionCoverages))
 
 		if len(element.Modality.Promotion.PromotionCoverages) <= 0 {
 
