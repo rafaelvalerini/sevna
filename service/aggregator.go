@@ -13,6 +13,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"encoding/json"
 )
 
 func AgregateAllV2(request model.RequestAggregator) (agregator model.Aggregator) {
@@ -106,7 +107,7 @@ func AgregateAllV2(request model.RequestAggregator) (agregator model.Aggregator)
 
 		element.Url = buffer.String()
 
-		elementNotPromo := element
+		elementNotPromo := createCopyPlayer(element)
 
 		var pro model.Promotion
 
@@ -134,9 +135,9 @@ func AgregateAllV2(request model.RequestAggregator) (agregator model.Aggregator)
 
 		for _, promo := range element.Modality.Promotions {
 
-			elementWithPromo := element
+			elementWithPromo := createCopyPlayer(element)
 
-			element.Modality.Promotion = promo
+			elementWithPromo.Modality.Promotion = promo
 
 			elementWithPromo = validateAvailableAndCoverage(elementWithPromo, agregator.Start)
 
@@ -162,6 +163,16 @@ func AgregateAllV2(request model.RequestAggregator) (agregator model.Aggregator)
 	agregator.Players = plyrs
 
 	return agregator
+
+}
+
+func createCopyPlayer(player model.Player) (newPlayer model.Player){
+
+	b, _ := json.Marshal(player)
+
+	json.Unmarshal(b, &newPlayer)
+
+	return newPlayer
 
 }
 
