@@ -10,8 +10,8 @@ import (
 
 func SavePromotion(entity model.Promotion) (model model.Promotion) {
 
-	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah_hml?charset=utf8&parseTime=True&loc=Local")
-	//db, err := sql.Open("mysql", "root:Rafilkis1536*@tcp(localhost:3306)/vah_hml?charset=utf8&parseTime=True&loc=Local")
+	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah?charset=utf8&parseTime=True&loc=Local")
+	//db, err := sql.Open("mysql", "root:Rafilkis1536*@tcp(localhost:3306)/vah?charset=utf8&parseTime=True&loc=Local")
 
 	if err != nil {
 
@@ -169,8 +169,8 @@ func saveCoveragePromotion(entity model.Promotion, promotionModalityId int, db *
 
 func DeletePromotion(promotion int) {
 
-	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah_hml?charset=utf8&parseTime=True&loc=Local")
-	//db, err := sql.Open("mysql", "root:Rafilkis1536*@tcp(localhost:3306)/vah_hml?charset=utf8&parseTime=True&loc=Local")
+	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah?charset=utf8&parseTime=True&loc=Local")
+	//db, err := sql.Open("mysql", "root:Rafilkis1536*@tcp(localhost:3306)/vah?charset=utf8&parseTime=True&loc=Local")
 
 	if err != nil {
 
@@ -200,8 +200,8 @@ func DeletePromotion(promotion int) {
 
 func DeletePromotionModality(promotionModality int) {
 
-	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah_hml?charset=utf8&parseTime=True&loc=Local")
-	//db, err := sql.Open("mysql", "root:Rafilkis1536*@tcp(localhost:3306)/vah_hml?charset=utf8&parseTime=True&loc=Local")
+	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah?charset=utf8&parseTime=True&loc=Local")
+	//db, err := sql.Open("mysql", "root:Rafilkis1536*@tcp(localhost:3306)/vah?charset=utf8&parseTime=True&loc=Local")
 
 	if err != nil {
 
@@ -231,8 +231,8 @@ func DeletePromotionModality(promotionModality int) {
 
 func FindPromotion(player int, modality int) (promotions []model.Promotion) {
 
-	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah_hml?charset=utf8&parseTime=True&loc=Local")
-	//db, err := sql.Open("mysql", "root:Rafilkis1536*@tcp(localhost:3306)/vah_hml?charset=utf8&parseTime=True&loc=Local")
+	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah?charset=utf8&parseTime=True&loc=Local")
+	//db, err := sql.Open("mysql", "root:Rafilkis1536*@tcp(localhost:3306)/vah?charset=utf8&parseTime=True&loc=Local")
 
 	if err != nil {
 
@@ -347,8 +347,8 @@ func FindPromotion(player int, modality int) (promotions []model.Promotion) {
 
 func FindAllPromotions() (promotions []model.Promotion) {
 
-	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah_hml?charset=utf8&parseTime=True&loc=Local")
-	//db, err := sql.Open("mysql", "root:Rafilkis1536*@tcp(localhost:3306)/vah_hml?charset=utf8&parseTime=True&loc=Local")
+	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah?charset=utf8&parseTime=True&loc=Local")
+	//db, err := sql.Open("mysql", "root:Rafilkis1536*@tcp(localhost:3306)/vah?charset=utf8&parseTime=True&loc=Local")
 
 	if err != nil {
 
@@ -574,8 +574,8 @@ func FindAllPromotions() (promotions []model.Promotion) {
 
 func FindAllPromotionsGroupModality() (promotions []model.Promotion) {
 
-	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah_hml?charset=utf8&parseTime=True&loc=Local")
-	//db, err := sql.Open("mysql", "root:Rafilkis1536*@tcp(localhost:3306)/vah_hml?charset=utf8&parseTime=True&loc=Local")
+	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah?charset=utf8&parseTime=True&loc=Local")
+	//db, err := sql.Open("mysql", "root:Rafilkis1536*@tcp(localhost:3306)/vah?charset=utf8&parseTime=True&loc=Local")
 
 	if err != nil {
 
