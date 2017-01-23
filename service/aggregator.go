@@ -4,6 +4,7 @@ import (
 	"agregador/model"
 	"agregador/repository"
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -13,7 +14,6 @@ import (
 	"strings"
 	"sync"
 	"time"
-	"encoding/json"
 )
 
 func AgregateAllV2(request model.RequestAggregator) (agregator model.Aggregator) {
@@ -60,6 +60,7 @@ func AgregateAllV2(request model.RequestAggregator) (agregator model.Aggregator)
 			buffer.WriteString(strconv.FormatFloat(agregator.End.Lng, 'G', -1, 64))
 			buffer.WriteString("&dropoff[formatted_address]=")
 			buffer.WriteString(agregator.End.Address)
+			element.Url = buffer.String()
 
 		}
 
@@ -79,6 +80,7 @@ func AgregateAllV2(request model.RequestAggregator) (agregator model.Aggregator)
 			buffer.WriteString(strconv.FormatFloat(agregator.End.Lat, 'G', -1, 64))
 			buffer.WriteString("&stops[1][loc][longitude]=")
 			buffer.WriteString(strconv.FormatFloat(agregator.End.Lng, 'G', -1, 64))
+			element.Url = buffer.String()
 
 		}
 
@@ -96,7 +98,7 @@ func AgregateAllV2(request model.RequestAggregator) (agregator model.Aggregator)
 			buffer.WriteString(strconv.FormatFloat(agregator.End.Lng, 'G', -1, 64))
 			buffer.WriteString("&endName=")
 			buffer.WriteString(agregator.End.Address)
-
+			element.Url = buffer.String()
 		}
 
 		if element.Id == 4 {
@@ -104,8 +106,6 @@ func AgregateAllV2(request model.RequestAggregator) (agregator model.Aggregator)
 			element.Url = "easytaxi://p/home"
 
 		}
-
-		element.Url = buffer.String()
 
 		elementNotPromo := createCopyPlayer(element)
 
@@ -166,7 +166,7 @@ func AgregateAllV2(request model.RequestAggregator) (agregator model.Aggregator)
 
 }
 
-func createCopyPlayer(player model.Player) (newPlayer model.Player){
+func createCopyPlayer(player model.Player) (newPlayer model.Player) {
 
 	b, _ := json.Marshal(player)
 

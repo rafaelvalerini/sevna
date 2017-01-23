@@ -14,8 +14,8 @@ import (
 
 func SaveSearch(agregator model.Aggregator, request model.RequestAggregator) {
 
-	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah?charset=utf8&parseTime=True&loc=Local")
-	//db, err := sql.Open("mysql", "root:Rafilkis1536*@tcp(localhost:3306)/vah?charset=utf8&parseTime=True&loc=Local")
+	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah_hml?charset=utf8&parseTime=True&loc=Local")
+	//db, err := sql.Open("mysql", "root:Rafilkis1536*@tcp(localhost:3306)/vah_hml?charset=utf8&parseTime=True&loc=Local")
 
 	if err != nil {
 
@@ -163,8 +163,8 @@ func saveStartAddress(position model.Position, db *sql.DB) (uuidString string) {
 
 func Selected(selected string, promotion string, store string) (uuidString string) {
 
-	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah?charset=utf8&parseTime=True&loc=Local")
-	//db, err := sql.Open("mysql", "root:Rafilkis1536*@tcp(localhost:3306)/vah?charset=utf8&parseTime=True&loc=Local")
+	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah_hml?charset=utf8&parseTime=True&loc=Local")
+	//db, err := sql.Open("mysql", "root:Rafilkis1536*@tcp(localhost:3306)/vah_hml?charset=utf8&parseTime=True&loc=Local")
 
 	uuidString = selected
 

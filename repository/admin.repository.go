@@ -10,11 +10,10 @@ import (
 	"time"
 )
 
-
 func CountEstimates() (cont int64) {
 
-	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah?charset=utf8&parseTime=True&loc=Local")
-	//db, err := sql.Open("mysql", "root:Rafilkis1536*@tcp(localhost:3306)/vah?charset=utf8&parseTime=True&loc=Local")
+	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah_hml?charset=utf8&parseTime=True&loc=Local")
+	//db, err := sql.Open("mysql", "root:Rafilkis1536*@tcp(localhost:3306)/vah_hml?charset=utf8&parseTime=True&loc=Local")
 
 	if err != nil {
 
@@ -46,8 +45,8 @@ func CountEstimates() (cont int64) {
 
 func CountModalities() (modalities []model.MoreUser) {
 
-	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah?charset=utf8&parseTime=True&loc=Local")
-	//db, err := sql.Open("mysql", "root:Rafilkis1536*@tcp(localhost:3306)/vah?charset=utf8&parseTime=True&loc=Local")
+	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah_hml?charset=utf8&parseTime=True&loc=Local")
+	//db, err := sql.Open("mysql", "root:Rafilkis1536*@tcp(localhost:3306)/vah_hml?charset=utf8&parseTime=True&loc=Local")
 
 	if err != nil {
 
@@ -93,8 +92,8 @@ func CountModalities() (modalities []model.MoreUser) {
 
 func SearchByNotification(state string, city string, initial int) (notifications []string) {
 
-	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah?charset=utf8&parseTime=True&loc=Local")
-	//db, err := sql.Open("mysql", "root:Rafilkis1536*@tcp(localhost:3306)/vah?charset=utf8&parseTime=True&loc=Local")
+	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah_hml?charset=utf8&parseTime=True&loc=Local")
+	//db, err := sql.Open("mysql", "root:Rafilkis1536*@tcp(localhost:3306)/vah_hml?charset=utf8&parseTime=True&loc=Local")
 
 	if err != nil {
 
@@ -136,8 +135,8 @@ func SearchByNotification(state string, city string, initial int) (notifications
 
 func SumSavedEstimates() (model model.MetaFloat64) {
 
-	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah?charset=utf8&parseTime=True&loc=Local")
-	//db, err := sql.Open("mysql", "root:Rafilkis1536*@tcp(localhost:3306)/vah?charset=utf8&parseTime=True&loc=Local")
+	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah_hml?charset=utf8&parseTime=True&loc=Local")
+	//db, err := sql.Open("mysql", "root:Rafilkis1536*@tcp(localhost:3306)/vah_hml?charset=utf8&parseTime=True&loc=Local")
 
 	if err != nil {
 
@@ -201,8 +200,8 @@ func SumSavedEstimates() (model model.MetaFloat64) {
 
 func FindAnalytics(state string, city string, player string, modality string, startAt string, endAt string) (result []model.ResultAnalytics) {
 
-	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah?charset=utf8&parseTime=True&loc=Local")
-	//db, err := sql.Open("mysql", "root:Rafilkis1536*@tcp(localhost:3306)/vah?charset=utf8&parseTime=True&loc=Local")
+	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah_hml?charset=utf8&parseTime=True&loc=Local")
+	//db, err := sql.Open("mysql", "root:Rafilkis1536*@tcp(localhost:3306)/vah_hml?charset=utf8&parseTime=True&loc=Local")
 
 	if err != nil {
 
@@ -222,9 +221,9 @@ func FindAnalytics(state string, city string, player string, modality string, st
 		"distinct  "+
 		"startAddress.date_time as DateTime, "+
 		"CASE "+
-            "WHEN selected.type_open IS NULL "+
-            "THEN 0 "+
-            "ELSE selected.type_open "+
+		"WHEN selected.type_open IS NULL "+
+		"THEN 0 "+
+		"ELSE selected.type_open "+
 		"END as TypeOpen,"+
 		"startAddress.address as StartAddress, "+
 		"endAddress.address as EndAddress, "+
@@ -239,7 +238,7 @@ func FindAnalytics(state string, city string, player string, modality string, st
 		"endAddress.state as EndState, "+
 		"c.operation_system_version as OperationSystemVersion, "+
 		"c.type_connection as TypeConnection, "+
-		
+
 		"c.version_app as VersionApp "+
 		"from "+
 		"( "+
@@ -327,37 +326,32 @@ func FindAnalytics(state string, city string, player string, modality string, st
 
 		err2 := rows.Scan(&res.DateTime, &res.TypeOpen, &res.StartAddress, &res.EndAddress, &playerResult, &modalityResult, &valueResult, &promotion, &res.OperationSystem, &res.StartCity, &res.StartState, &res.EndCity, &res.EndState, &res.OperationSystemVersion, &typeConnection, &version)
 
-		if err2 != nil{
+		if err2 != nil {
 			fmt.Println(err2)
 			continue
 		}
 
-		if typeConnection.Valid{
+		if typeConnection.Valid {
 			res.TypeConnection = typeConnection.String
 		}
 
-
-		if playerResult.Valid{
+		if playerResult.Valid {
 			res.Player = playerResult.String
 		}
 
-
-		if modalityResult.Valid{
+		if modalityResult.Valid {
 			res.Modality = modalityResult.String
 		}
 
-
-		if valueResult.Valid{
+		if valueResult.Valid {
 			res.Value = valueResult.String
 		}
 
-
-		if promotion.Valid{
+		if promotion.Valid {
 			res.Promotion = promotion.String
 		}
 
-
-		if version.Valid{
+		if version.Valid {
 			res.VersionApp = version.String
 		}
 
@@ -365,16 +359,14 @@ func FindAnalytics(state string, city string, player string, modality string, st
 
 	}
 
-	
-
 	return result
 
 }
 
 func CountPromotions() (modalities []model.MoreUser) {
 
-	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah?charset=utf8&parseTime=True&loc=Local")
-	//db, err := sql.Open("mysql", "root:Rafilkis1536*@tcp(localhost:3306)/vah?charset=utf8&parseTime=True&loc=Local")
+	db, err := sql.Open("mysql", "usr_vah:vah_taxi2$@tcp(vah.cn73hi7irhmm.us-east-1.rds.amazonaws.com:3306)/vah_hml?charset=utf8&parseTime=True&loc=Local")
+	//db, err := sql.Open("mysql", "root:Rafilkis1536*@tcp(localhost:3306)/vah_hml?charset=utf8&parseTime=True&loc=Local")
 
 	if err != nil {
 
