@@ -6,11 +6,9 @@ ADD . /go/src/agregador
 
 RUN apt-get update -y
 
-RUN apt-get install tzdata -y
+RUN echo "America/Sao_Paulo" > /etc/timezone
 
-ENV TZ=America/Sao_Paulo
-
-RUN rm -rf /var/cache/apk/*
+RUN dpkg-reconfigure -f noninteractive tzdata
 
 RUN go get
 
