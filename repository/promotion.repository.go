@@ -115,7 +115,7 @@ func savePromotionAvailabled(entity model.Promotion, idPromotion int, db *sql.DB
 
 	for i := 0; i < len(entity.PromotionAvailable); i++ {
 
-		stmtIns, err := db.Prepare("INSERT INTO vah.promotion_available (monday, tuesday, wednesday, thursday, friday, saturday, sunday, start_hour, end_hour, id_promotion) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);")
+		stmtIns, err := db.Prepare("INSERT INTO promotion_available (monday, tuesday, wednesday, thursday, friday, saturday, sunday, start_hour, end_hour, id_promotion) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);")
 
 		if err != nil {
 

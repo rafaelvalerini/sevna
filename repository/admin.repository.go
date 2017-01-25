@@ -209,6 +209,8 @@ func FindAnalytics(state string, city string, player string, modality string, st
 
 	}
 
+	defer db.Close()
+
 	layout := "2006-01-02T15:04:05.000Z"
 
 	start_date, err := time.Parse(layout, startAt)
@@ -218,6 +220,11 @@ func FindAnalytics(state string, city string, player string, modality string, st
 	query := fmt.Sprintf("select "+
 		"distinct  "+
 		"startAddress.date_time as DateTime, "+
+		"CASE "+
+		"WHEN selected.type_open IS NULL "+
+		"THEN 0 "+
+		"ELSE selected.type_open "+
+		"END as TypeOpen,"+
 		"startAddress.address as StartAddress, "+
 		"endAddress.address as EndAddress, "+
 		"p.name as Player, "+
@@ -231,7 +238,7 @@ func FindAnalytics(state string, city string, player string, modality string, st
 		"endAddress.state as EndState, "+
 		"c.operation_system_version as OperationSystemVersion, "+
 		"c.type_connection as TypeConnection, "+
-		"selected.type_open as TypeOpen, "+
+
 		"c.version_app as VersionApp "+
 		"from "+
 		"( "+
@@ -289,7 +296,7 @@ func FindAnalytics(state string, city string, player string, modality string, st
 		query = query + " and UPPER(selected.id_modality) = '" + modality + "'"
 	}
 
-	//query = query + " order by startAddress.date_time desc "
+	query = query + " order by startAddress.date_time desc "
 
 	rows, err := db.Query(query)
 
@@ -299,37 +306,58 @@ func FindAnalytics(state string, city string, player string, modality string, st
 
 	}
 
+	defer rows.Close()
+
 	for rows.Next() {
 
 		var res model.ResultAnalytics
 
-		var playerResult []byte
+		var playerResult sql.NullString
 
-		var modalityResult []byte
+		var modalityResult sql.NullString
 
-		var valueResult []byte
+		var valueResult sql.NullString
 
-		var promotion []byte
+		var promotion sql.NullString
 
-		var version []byte
+		var version sql.NullString
 
-		err = rows.Scan(&res.DateTime, &res.StartAddress, &res.EndAddress, &playerResult, &modalityResult, &valueResult, &promotion, &res.OperationSystem, &res.StartCity, &res.StartState, &res.EndCity, &res.EndState, &res.OperationSystemVersion, &res.TypeConnection, &res.TypeOpen, &version)
+		var typeConnection sql.NullString
 
-		res.Player = string(playerResult)
+		err2 := rows.Scan(&res.DateTime, &res.TypeOpen, &res.StartAddress, &res.EndAddress, &playerResult, &modalityResult, &valueResult, &promotion, &res.OperationSystem, &res.StartCity, &res.StartState, &res.EndCity, &res.EndState, &res.OperationSystemVersion, &typeConnection, &version)
 
-		res.Modality = string(modalityResult)
+		if err2 != nil {
+			fmt.Println(err2)
+			continue
+		}
 
-		res.Value = string(valueResult)
+		if typeConnection.Valid {
+			res.TypeConnection = typeConnection.String
+		}
 
-		res.Promotion = string(promotion)
+		if playerResult.Valid {
+			res.Player = playerResult.String
+		}
 
-		res.VersionApp = string(version)
+		if modalityResult.Valid {
+			res.Modality = modalityResult.String
+		}
+
+		if valueResult.Valid {
+			res.Value = valueResult.String
+		}
+
+		if promotion.Valid {
+			res.Promotion = promotion.String
+		}
+
+		if version.Valid {
+			res.VersionApp = version.String
+		}
 
 		result = append(result, res)
 
 	}
-
-	defer db.Close()
 
 	return result
 
