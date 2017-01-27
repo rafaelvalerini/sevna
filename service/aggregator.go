@@ -16,6 +16,16 @@ import (
 	"time"
 )
 
+func AgregateAllV1(request model.RequestAggregator) (agregator model.Aggregator) {
+
+	agregator = AgregateAll(request)
+
+	repository.SaveSearch(agregator, request)
+
+	return agregator
+
+}
+
 func AgregateAllV2(request model.RequestAggregator) (agregator model.Aggregator) {
 
 	agregator = AgregateAll(request)
@@ -137,6 +147,10 @@ func AgregateAllV2(request model.RequestAggregator) (agregator model.Aggregator)
 
 			elementWithPromo := createCopyPlayer(element)
 
+			uuid, _ := exec.Command("uuidgen").Output()
+
+			elementWithPromo.Uuid = strings.Replace(string(uuid[:]), "\n", "", -1)
+
 			elementWithPromo.Modality.Promotion = promo
 
 			elementWithPromo = validateAvailableAndCoverage(elementWithPromo, agregator.Start)
@@ -161,6 +175,8 @@ func AgregateAllV2(request model.RequestAggregator) (agregator model.Aggregator)
 	sort.Sort(plyrs)
 
 	agregator.Players = plyrs
+
+	repository.SaveSearch(agregator, request)
 
 	return agregator
 
@@ -488,8 +504,6 @@ func AgregateAll(request model.RequestAggregator) (agregator model.Aggregator) {
 	wg.Wait()
 
 	AddPromotions(aggregate.Players)
-
-	repository.SaveSearch(aggregate, request)
 
 	return aggregate
 }
