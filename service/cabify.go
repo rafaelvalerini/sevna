@@ -41,7 +41,7 @@ func processEstimatesCabify(estimate model.ResponseCabify, player model.Player) 
 
 	for _, est := range estimate {
 
-		modal := GetModalityByName(player.Modalities, est.VehicleType.Name)
+		modal := GetModalityByName(player.Modalities, est.VehicleType.Name, "")
 
 		if modal.Name == "" || modal.Active == 0 {
 
