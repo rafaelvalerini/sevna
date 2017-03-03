@@ -157,7 +157,8 @@ func FindAllPlayers() (players []model.Player) {
 
 	}
 
-	rows, err := db.Query("select p.id, p.name, m.id, m.name, m.price_km, m.time_km, mc.zip_code_initial, mc.zip_code_final, m.price_base, m.price_time, m.minimum_price, p.active, m.active, m.edit_values, p.token, m.key_api, p.alert_message  " +
+	rows, err := db.Query("select p.id, p.name, m.id, m.name, m.price_km, m.time_km, mc.zip_code_initial, mc.zip_code_final, m.price_base, " +
+		"m.price_time, m.minimum_price, p.active, m.active, m.edit_values, p.token, m.key_api, p.alert_message, m.text_popup, m.with_emoji  " +
 		"from player p " +
 		"left join modality m on p.id = m.id_player " +
 		"left join modality_coverage mc on m.id = mc.id_modality ")
@@ -206,7 +207,12 @@ func FindAllPlayers() (players []model.Player) {
 
 		var alertMessage []byte
 
-		err = rows.Scan(&playerId, &playerName, &modalityId, &modalityName, &modalityPrice, &modalityTime, &zipCodeInitial, &zipCodeFinal, &priceBase, &priceTime, &priceMinimum, &activePlayer, &activeModality, &editValues, &token, &keyApi, &alertMessage)
+		var textPopup []byte
+
+		var emoji int
+
+		err = rows.Scan(&playerId, &playerName, &modalityId, &modalityName, &modalityPrice, &modalityTime, &zipCodeInitial, &zipCodeFinal,
+			&priceBase, &priceTime, &priceMinimum, &activePlayer, &activeModality, &editValues, &token, &keyApi, &alertMessage, &textPopup, &emoji)
 
 		if err != nil {
 
@@ -281,6 +287,8 @@ func FindAllPlayers() (players []model.Player) {
 								Active:       activeModality,
 								EditValues:   editValues,
 								KeyApi:       keyApi,
+								TextPopup:    string(textPopup),
+								WithEmoji:    emoji,
 								ModalityCoverage: []model.Coverage{
 									model.Coverage{
 										ZipCodeInitial: zipCodeInitialAux,
@@ -310,6 +318,8 @@ func FindAllPlayers() (players []model.Player) {
 							Active:       activeModality,
 							EditValues:   editValues,
 							KeyApi:       keyApi,
+							TextPopup:    string(textPopup),
+							WithEmoji:    emoji,
 							ModalityCoverage: []model.Coverage{
 								model.Coverage{
 									ZipCodeInitial: zipCodeInitialAux,
@@ -339,6 +349,8 @@ func FindAllPlayers() (players []model.Player) {
 					Active:       activeModality,
 					EditValues:   editValues,
 					KeyApi:       keyApi,
+					TextPopup:    string(textPopup),
+					WithEmoji:    emoji,
 					ModalityCoverage: []model.Coverage{
 						model.Coverage{
 							ZipCodeInitial: zipCodeInitialAux,
@@ -364,6 +376,8 @@ func FindAllPlayers() (players []model.Player) {
 				Active:       activeModality,
 				EditValues:   editValues,
 				KeyApi:       keyApi,
+				TextPopup:    string(textPopup),
+				WithEmoji:    emoji,
 				ModalityCoverage: []model.Coverage{
 					model.Coverage{
 						ZipCodeInitial: zipCodeInitialAux,

@@ -67,6 +67,8 @@ type Modality struct {
 	EditValues       int         `json:"edit_values,omitempty"`
 	KeyApi           string      `json:"key_api,omitempty"`
 	NameApi          string      `json:"name_api,omitempty"`
+	TextPopup        string      `json:"text_popup,omitempty"`
+	WithEmoji        int         `json:"with_emoji,omitempty"`
 }
 
 type Coverage struct {
