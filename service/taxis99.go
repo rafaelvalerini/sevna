@@ -158,6 +158,10 @@ func getEasy(m model.Player, playerEasy model.Player) (playerReturn model.Player
 
 	}
 
+	playerResult.Modality.TextPopup = modal.TextPopup
+
+	playerResult.Modality.WithEmoji = modal.WithEmoji
+
 	return playerResult
 }
 
