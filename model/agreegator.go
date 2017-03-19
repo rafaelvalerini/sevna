@@ -1,5 +1,11 @@
 package model
 
+type TokenPlayer struct {
+	Id       int
+	Token    string
+	PlayerId int
+}
+
 type Aggregator struct {
 	Id      string   `json:"id"`
 	Start   Position `json:"start"`

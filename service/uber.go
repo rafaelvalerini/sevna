@@ -21,7 +21,7 @@ const (
 	UBER_HEADER_AUTH        = "Authorization"
 )
 
-func GetEstimatesUber(start_lat float64, start_lng float64, end_lat float64, end_lng float64, player model.Player) (response []model.Player) {
+func GetEstimatesUber(start_lat float64, start_lng float64, end_lat float64, end_lng float64, player model.Player, token model.TokenPlayer) (response []model.Player) {
 
 	if player.Active == 1 {
 
@@ -40,21 +40,21 @@ func GetEstimatesUber(start_lat float64, start_lng float64, end_lat float64, end
 		go func() {
 			defer wg.Done()
 
-			products = getProducts(start_lat, start_lng, player)
+			products = getProducts(start_lat, start_lng, player, token)
 
 		}()
 
 		go func() {
 			defer wg.Done()
 
-			times = getTimes(start_lat, start_lng, player)
+			times = getTimes(start_lat, start_lng, player, token)
 
 		}()
 
 		go func() {
 			defer wg.Done()
 
-			prices = getPrices(start_lat, start_lng, end_lat, end_lng, player)
+			prices = getPrices(start_lat, start_lng, end_lat, end_lng, player, token)
 
 		}()
 
@@ -104,7 +104,15 @@ func processEstimates(products model.ResponseProduct, times model.ResponseTime, 
 
 			modality.Id = product.ProductID
 
-			modality.Name = product.DisplayName
+			if product.DisplayName == "uberBAG" && product.SortDescription == "uberXBAG" {
+
+				modality.Name = product.SortDescription
+
+			} else {
+
+				modality.Name = product.DisplayName
+
+			}
 
 			modality.Image = product.Image
 
@@ -148,7 +156,7 @@ func processEstimates(products model.ResponseProduct, times model.ResponseTime, 
 	return response
 }
 
-func getTimes(start_lat float64, start_lng float64, player model.Player) (response model.ResponseTime) {
+func getTimes(start_lat float64, start_lng float64, player model.Player, token model.TokenPlayer) (response model.ResponseTime) {
 	client := &http.Client{}
 
 	req, err := http.NewRequest("GET", UBER_DOMAIN+UBER_URL_ESTIMATE_TIME+"?start_latitude="+
@@ -160,7 +168,7 @@ func getTimes(start_lat float64, start_lng float64, player model.Player) (respon
 
 	}
 
-	req.Header.Add(UBER_HEADER_AUTH, player.Token)
+	req.Header.Add(UBER_HEADER_AUTH, token.Token)
 
 	resp, err := client.Do(req)
 
@@ -187,7 +195,7 @@ func getTimes(start_lat float64, start_lng float64, player model.Player) (respon
 	return m
 }
 
-func getPrices(start_lat float64, start_lng float64, end_lat float64, end_lng float64, player model.Player) (response model.ResponsePrices) {
+func getPrices(start_lat float64, start_lng float64, end_lat float64, end_lng float64, player model.Player, token model.TokenPlayer) (response model.ResponsePrices) {
 	client := &http.Client{}
 
 	req, err := http.NewRequest("GET", UBER_DOMAIN+UBER_URL_ESTIMATE_PRICE+"?start_latitude="+
@@ -200,7 +208,7 @@ func getPrices(start_lat float64, start_lng float64, end_lat float64, end_lng fl
 
 	}
 
-	req.Header.Add(UBER_HEADER_AUTH, player.Token)
+	req.Header.Add(UBER_HEADER_AUTH, token.Token)
 
 	resp, err := client.Do(req)
 
@@ -211,7 +219,7 @@ func getPrices(start_lat float64, start_lng float64, end_lat float64, end_lng fl
 
 	defer resp.Body.Close()
 
-	htmlData, err := ioutil.ReadAll(resp.Body) //<--- here!
+	htmlData, err := ioutil.ReadAll(resp.Body)
 
 	if err != nil {
 		fmt.Println(err)
@@ -227,7 +235,7 @@ func getPrices(start_lat float64, start_lng float64, end_lat float64, end_lng fl
 	return m
 }
 
-func getProducts(start_lat float64, start_lng float64, player model.Player) (response model.ResponseProduct) {
+func getProducts(start_lat float64, start_lng float64, player model.Player, token model.TokenPlayer) (response model.ResponseProduct) {
 	client := &http.Client{}
 
 	req, err := http.NewRequest("GET", UBER_DOMAIN+UBER_URL_PRODUCTS+"?latitude="+
@@ -239,7 +247,7 @@ func getProducts(start_lat float64, start_lng float64, player model.Player) (res
 
 	}
 
-	req.Header.Add(UBER_HEADER_AUTH, player.Token)
+	req.Header.Add(UBER_HEADER_AUTH, token.Token)
 
 	resp, err := client.Do(req)
 

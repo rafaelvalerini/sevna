@@ -452,6 +452,8 @@ func AgregateAll(request model.RequestAggregator) (agregator model.Aggregator) {
 
 	players := repository.FindAllPlayers()
 
+	tokens := repository.GetAccessToken()
+
 	runtime.GOMAXPROCS(3)
 
 	var wg sync.WaitGroup
@@ -463,7 +465,9 @@ func AgregateAll(request model.RequestAggregator) (agregator model.Aggregator) {
 
 		playerUber := GetPlayer(players, 1)
 
-		ubbers := GetEstimatesUber(request.Start.Lat, request.Start.Lng, request.End.Lat, request.End.Lng, playerUber)
+		tokensUber := GetTokensByPlayer(tokens, 1)
+
+		ubbers := GetEstimatesUber(request.Start.Lat, request.Start.Lng, request.End.Lat, request.End.Lng, playerUber, GetUnicToken(tokensUber))
 
 		for _, element := range ubbers {
 			aggregate.Players = append(aggregate.Players, element)

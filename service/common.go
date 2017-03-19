@@ -2,6 +2,8 @@ package service
 
 import (
 	"agregador/model"
+	"fmt"
+	"math/rand"
 	"strings"
 )
 
@@ -38,5 +40,29 @@ func GetPlayer(players []model.Player, id int) (player model.Player) {
 	}
 
 	return player
+
+}
+
+func GetTokensByPlayer(tokens []model.TokenPlayer, playerID int) (tokenByPlayer []model.TokenPlayer) {
+
+	for i := 0; i < len(tokens); i++ {
+
+		if tokens[i].PlayerId == playerID {
+
+			tokenByPlayer = append(tokenByPlayer, tokens[i])
+
+		}
+
+	}
+
+	return tokenByPlayer
+
+}
+
+func GetUnicToken(tokens []model.TokenPlayer) model.TokenPlayer {
+
+	index := rand.Intn(len(tokens))
+
+	return tokens[index]
 
 }
