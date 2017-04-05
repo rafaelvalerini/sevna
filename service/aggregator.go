@@ -481,7 +481,9 @@ func AgregateAll(request model.RequestAggregator) (agregator model.Aggregator) {
 
 		playerCabify := GetPlayer(players, 2)
 
-		cabifys := GetEstimatesCabify(request.Start.Lat, request.Start.Lng, request.End.Lat, request.End.Lng, playerCabify)
+		tokensCabify := GetTokensByPlayer(tokens, 2)
+
+		cabifys := GetEstimatesCabify(request.Start.Lat, request.Start.Lng, request.End.Lat, request.End.Lng, playerCabify, GetUnicToken(tokensCabify))
 
 		for _, element := range cabifys {
 			aggregate.Players = append(aggregate.Players, element)
@@ -495,9 +497,11 @@ func AgregateAll(request model.RequestAggregator) (agregator model.Aggregator) {
 
 		player99 := GetPlayer(players, 3)
 
+		tokens99 := GetTokensByPlayer(tokens, 3)
+
 		playerEasy := GetPlayer(players, 4)
 
-		defaults := GetEstimates99TaxiAndEasy(request.Start.Lat, request.Start.Lng, request.End.Lat, request.End.Lng, request.Duration, request.Distance, player99, playerEasy)
+		defaults := GetEstimates99TaxiAndEasy(request.Start.Lat, request.Start.Lng, request.End.Lat, request.End.Lng, request.Duration, request.Distance, player99, playerEasy, GetUnicToken(tokens99))
 
 		for _, element := range defaults {
 			aggregate.Players = append(aggregate.Players, element)

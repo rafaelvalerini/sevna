@@ -2,7 +2,6 @@ package service
 
 import (
 	"agregador/model"
-	"fmt"
 	"math/rand"
 	"strings"
 )

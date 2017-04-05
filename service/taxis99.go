@@ -22,9 +22,9 @@ const (
 	TAXIS99_CONTENT_JSON           = "application/json"
 )
 
-func GetEstimates99TaxiAndEasy(start_lat float64, start_lng float64, end_lat float64, end_lng float64, duration int64, distance int64, player99 model.Player, playerEasy model.Player) (response []model.Player) {
+func GetEstimates99TaxiAndEasy(start_lat float64, start_lng float64, end_lat float64, end_lng float64, duration int64, distance int64, player99 model.Player, playerEasy model.Player, token model.TokenPlayer) (response []model.Player) {
 
-	estimate := getEstimates99(start_lat, start_lng, end_lat, end_lng, duration, distance, player99)
+	estimate := getEstimates99(start_lat, start_lng, end_lat, end_lng, duration, distance, player99, token)
 
 	return processEstimates99Taxi(estimate, player99, playerEasy)
 
@@ -165,7 +165,7 @@ func getEasy(m model.Player, playerEasy model.Player) (playerReturn model.Player
 	return playerResult
 }
 
-func getEstimates99(start_lat float64, start_lng float64, end_lat float64, end_lng float64, duration int64, distance int64, player99 model.Player) (response model.Response99Taxi) {
+func getEstimates99(start_lat float64, start_lng float64, end_lat float64, end_lng float64, duration int64, distance int64, player99 model.Player, token model.TokenPlayer) (response model.Response99Taxi) {
 
 	client := &http.Client{}
 
@@ -192,7 +192,7 @@ func getEstimates99(start_lat float64, start_lng float64, end_lat float64, end_l
 
 	req.Header.Add(TAXIS99_HEADER_USER_ID, TAXIS99_HEADER_USER_ID_VALUE)
 
-	req.Header.Add(TAXIS99_HEADER_USER_UUID, player99.Token)
+	req.Header.Add(TAXIS99_HEADER_USER_UUID, token.Token)
 
 	req.Header.Add(TAXIS99_HEADER_CONTENT, CABIFY_CONTENT_JSON)
 

@@ -19,11 +19,11 @@ const (
 	CABIFY_CONTENT_JSON   = "application/json"
 )
 
-func GetEstimatesCabify(start_lat float64, start_lng float64, end_lat float64, end_lng float64, player model.Player) (response []model.Player) {
+func GetEstimatesCabify(start_lat float64, start_lng float64, end_lat float64, end_lng float64, player model.Player, token model.TokenPlayer) (response []model.Player) {
 
 	if player.Active == 1 {
 
-		estimate := getEstimates(start_lat, start_lng, end_lat, end_lng, player)
+		estimate := getEstimates(start_lat, start_lng, end_lat, end_lng, player, token)
 
 		return processEstimatesCabify(estimate, player)
 
@@ -65,7 +65,7 @@ func processEstimatesCabify(estimate model.ResponseCabify, player model.Player) 
 
 		modality.Id = strings.TrimSpace(est.VehicleType.ID)
 
-		modality.Name = strings.TrimSpace(est.VehicleType.Name)
+		modality.Name = strings.TrimSpace(modal.Name)
 
 		modality.Image = strings.TrimSpace(est.VehicleType.Icons.Regular)
 
@@ -85,7 +85,7 @@ func processEstimatesCabify(estimate model.ResponseCabify, player model.Player) 
 
 }
 
-func getEstimates(start_lat float64, start_lng float64, end_lat float64, end_lng float64, player model.Player) (response model.ResponseCabify) {
+func getEstimates(start_lat float64, start_lng float64, end_lat float64, end_lng float64, player model.Player, token model.TokenPlayer) (response model.ResponseCabify) {
 
 	client := &http.Client{}
 
@@ -103,7 +103,7 @@ func getEstimates(start_lat float64, start_lng float64, end_lat float64, end_lng
 
 	}
 
-	req.Header.Add(CABIFY_HEADER_AUTH, player.Token)
+	req.Header.Add(CABIFY_HEADER_AUTH, token.Token)
 
 	req.Header.Add(CABIFY_HEADER_CONTENT, CABIFY_CONTENT_JSON)
 
