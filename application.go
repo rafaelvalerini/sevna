@@ -70,6 +70,8 @@ func main() {
 
 	router.GET("/v1/estimates/promotions/count", countPromotions)
 
+	router.GET("/v1/messages/start", getMessagesStart)
+
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"*"},
 		AllowCredentials: true,
@@ -811,6 +813,49 @@ func getAllPromotions(w http.ResponseWriter, r *http.Request, ps httprouter.Para
 		w.Header().Set("Content-Type", "application/json")
 
 		json.NewEncoder(w).Encode(result)
+
+	}
+
+}
+
+func getMessagesStart(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+	auth := r.Header.Get("Authorization")
+
+	q := r.URL.Query()
+
+	if auth != "65edc9b5-d134-4c8b-9be5-ee2c722f4a54" {
+
+		http.Error(w, "Auth failed", http.StatusUnauthorized)
+
+	} else {
+
+		lastRecord := q.Get("lastRecord")
+
+		if lastRecord != "" {
+
+			lastRecordInt, err := strconv.Atoi(lastRecord)
+
+			if err != nil {
+
+				http.Error(w, "Last Record invalid", http.StatusBadRequest)
+
+			}
+
+			result := repository.FindMessagesStart(lastRecordInt)
+
+			w.Header().Set("Content-Type", "application/json")
+
+			json.NewEncoder(w).Encode(result)
+
+		} else {
+
+			result := repository.FindMessagesStart(0)
+
+			w.Header().Set("Content-Type", "application/json")
+
+			json.NewEncoder(w).Encode(result)
+		}
 
 	}
 
