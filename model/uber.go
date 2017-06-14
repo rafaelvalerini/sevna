@@ -50,3 +50,51 @@ type ResponseProduct struct {
 		Shared          bool   `json:"shared"`
 	} `json:"products"`
 }
+
+type ResponseEstimateV12 struct {
+	Fare struct {
+		Value        float64 `json:"value"`
+		FareID       string  `json:"fare_id"`
+		ExpiresAt    int     `json:"expires_at"`
+		Display      string  `json:"display"`
+		CurrencyCode string  `json:"currency_code"`
+	} `json:"fare"`
+	Trip struct {
+		DistanceUnit     string  `json:"distance_unit"`
+		DurationEstimate int     `json:"duration_estimate"`
+		DistanceEstimate float64 `json:"distance_estimate"`
+	} `json:"trip"`
+	PickupEstimate int `json:"pickup_estimate"`
+}
+
+type ResponseProductV12 struct {
+	Products []ProductUber `json:"products"`
+}
+
+type ProductUber struct {
+	UpfrontFareEnabled bool   `json:"upfront_fare_enabled"`
+	Capacity           int    `json:"capacity"`
+	ProductID          string `json:"product_id"`
+	Image              string `json:"image"`
+	CashEnabled        bool   `json:"cash_enabled"`
+	Shared             bool   `json:"shared"`
+	ShortDescription   string `json:"short_description"`
+	DisplayName        string `json:"display_name"`
+	ProductGroup       string `json:"product_group"`
+	Description        string `json:"description"`
+}
+
+type RequestEstimateV12 struct {
+	ProductID      string  `json:"product_id"`
+	StartLatitude  float64 `json:"start_latitude"`
+	StartLongitude float64 `json:"start_longitude"`
+	EndLatitude    float64 `json:"end_latitude"`
+	EndLongitude   float64 `json:"end_longitude"`
+	SeatCount      string  `json:"seat_count"`
+}
+
+type TokenUber struct {
+	Id          int
+	Active      int
+	TokenBearer string
+}

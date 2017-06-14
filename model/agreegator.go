@@ -7,10 +7,12 @@ type TokenPlayer struct {
 }
 
 type Aggregator struct {
-	Id      string   `json:"id"`
-	Start   Position `json:"start"`
-	End     Position `json:"end"`
-	Players []Player `json:"records"`
+	Id       string   `json:"id"`
+	Start    Position `json:"start"`
+	End      Position `json:"end"`
+	Players  []Player `json:"records"`
+	Duration int      `json:"duration"`
+	Distance int      `json:"distance"`
 }
 
 type RequestAggregator struct {
