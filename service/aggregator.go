@@ -71,7 +71,10 @@ func AgregateAllV2(request model.RequestAggregator) (agregator model.Aggregator)
 			buffer.WriteString(strconv.FormatFloat(agregator.End.Lng, 'G', -1, 64))
 			buffer.WriteString("&dropoff[formatted_address]=")
 			buffer.WriteString(agregator.End.Address)
+
 			element.Url = buffer.String()
+
+			element.UrlAndroid = buffer.String()
 
 		}
 
@@ -92,7 +95,9 @@ func AgregateAllV2(request model.RequestAggregator) (agregator model.Aggregator)
 			buffer.WriteString("&stops[1][loc][longitude]=")
 			buffer.WriteString(strconv.FormatFloat(agregator.End.Lng, 'G', -1, 64))
 
-			element.Url = "https://app.adjust.com/a0kvh4?deep_link=" + url.QueryEscape(buffer.String())
+			element.Url = buffer.String()
+
+			element.UrlAndroid = "https://app.adjust.com/a0kvh4?deep_link=" + url.QueryEscape(buffer.String())
 
 		}
 
@@ -111,12 +116,16 @@ func AgregateAllV2(request model.RequestAggregator) (agregator model.Aggregator)
 			buffer.WriteString("&endName=")
 			buffer.WriteString(agregator.End.Address)
 
-			element.Url = "https://app.adjust.com/gvl80l_8y8218?deep_link=" + url.QueryEscape(buffer.String())
+			element.Url = buffer.String()
+
+			element.UrlAndroid = "https://app.adjust.com/gvl80l_8y8218?deep_link=" + url.QueryEscape(buffer.String())
 		}
 
 		if element.Id == 4 {
 
 			element.Url = "easytaxi://p/home"
+
+			element.UrlAndroid = "easytaxi://p/home"
 
 		}
 
@@ -459,11 +468,11 @@ func AgregateAll(request model.RequestAggregator) (agregator model.Aggregator) {
 
 	tokens := repository.GetAccessToken()
 
-	runtime.GOMAXPROCS(2)
+	runtime.GOMAXPROCS(3)
 
 	var wg sync.WaitGroup
 
-	wg.Add(2)
+	wg.Add(3)
 
 	go func() {
 		defer wg.Done()
@@ -472,19 +481,10 @@ func AgregateAll(request model.RequestAggregator) (agregator model.Aggregator) {
 
 		tokensUber := GetTokensByPlayer(tokens, 1)
 
-		player99 := GetPlayer(players, 3)
-
-		tokens99 := GetTokensByPlayer(tokens, 3)
-
-		playerEasy := GetPlayer(players, 4)
-
-		ubbers, distance, duration := GetEstimatesUber(request.Start.Lat, request.Start.Lng, request.End.Lat, request.End.Lng, playerUber,
-			player99, playerEasy, GetUnicToken(tokensUber), GetUnicToken(tokens99))
+		ubbers := GetEstimatesUber(request.Start.Lat, request.Start.Lng, request.End.Lat, request.End.Lng, playerUber, GetUnicToken(tokensUber))
 
 		for _, element := range ubbers {
 			aggregate.Players = append(aggregate.Players, element)
-			aggregate.Distance = distance
-			aggregate.Duration = duration
 		}
 
 	}()
@@ -500,6 +500,24 @@ func AgregateAll(request model.RequestAggregator) (agregator model.Aggregator) {
 		cabifys := GetEstimatesCabify(request.Start.Lat, request.Start.Lng, request.End.Lat, request.End.Lng, playerCabify, GetUnicToken(tokensCabify))
 
 		for _, element := range cabifys {
+			aggregate.Players = append(aggregate.Players, element)
+		}
+
+	}()
+
+	go func() {
+
+		defer wg.Done()
+
+		player99 := GetPlayer(players, 3)
+
+		tokens99 := GetTokensByPlayer(tokens, 3)
+
+		playerEasy := GetPlayer(players, 4)
+
+		defaults := GetEstimates99TaxiAndEasy(request.Start.Lat, request.Start.Lng, request.End.Lat, request.End.Lng, request.Duration, request.Distance, player99, playerEasy, GetUnicToken(tokens99))
+
+		for _, element := range defaults {
 			aggregate.Players = append(aggregate.Players, element)
 		}
 

@@ -56,6 +56,7 @@ type Player struct {
 	Token           string     `json:"token,omitempty"`
 	AlertMessage    string     `json:"alert_message,omitempty"`
 	Url             string     `json:"url,omitempty"`
+	UrlAndroid      string     `json:"url_android,omitempty"`
 	Index           float64    `json:"index,omitempty"`
 }
 

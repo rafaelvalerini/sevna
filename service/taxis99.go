@@ -182,13 +182,6 @@ func getEstimates99(start_lat float64, start_lng float64, end_lat float64, end_l
 
 	json.NewEncoder(b).Encode(request)
 
-	by, err := json.Marshal(request)
-	if err != nil {
-		fmt.Printf("Error: %s", err)
-		return
-	}
-	fmt.Println(string(by))
-
 	req, err := http.NewRequest("POST", TAXIS99_DOMAIN+TAXIS99_URL_ESTIMATE, b)
 
 	if err != nil {
@@ -216,8 +209,6 @@ func getEstimates99(start_lat float64, start_lng float64, end_lat float64, end_l
 	if err != nil {
 		fmt.Println(err)
 	}
-
-	fmt.Println(string(htmlData))
 
 	c := []byte(string(htmlData))
 
