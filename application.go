@@ -28,6 +28,8 @@ func main() {
 
 	router.POST("/v2/estimates", estimateV2)
 
+	router.POST("/v2.1/estimates", estimateV21)
+
 	router.POST("/v1/estimate/selected/:selected", selected)
 
 	router.GET("/v1/user/auth", auth)
@@ -122,7 +124,7 @@ func estimate(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	} else {
 
-		result := service.AgregateAll(entity)
+		result := service.AgregateAll(entity, false)
 
 		w.Header().Set("Content-Type", "application/json")
 
@@ -162,7 +164,47 @@ func estimateV2(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 
 	} else {
 
-		result := service.AgregateAllV2(entity)
+		result := service.AgregateAllV2(entity, false)
+
+		w.Header().Set("Content-Type", "application/json")
+
+		json.NewEncoder(w).Encode(result)
+
+	}
+
+}
+
+func estimateV21(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+
+	auth := r.Header.Get("Authorization")
+
+	entity := model.RequestAggregator{}
+
+	json.NewDecoder(r.Body).Decode(&entity)
+
+	if auth != "65edc9b5-d134-4c8b-9ce5-ee2c722f4a54" {
+
+		http.Error(w, "Auth failed", http.StatusUnauthorized)
+
+	} else if entity.Start.Lat == 0 {
+
+		http.Error(w, "Start Latitude not found", http.StatusBadRequest)
+
+	} else if entity.Start.Lng == 0 {
+
+		http.Error(w, "Start Longitude not found", http.StatusBadRequest)
+
+	} else if entity.End.Lat == 0 {
+
+		http.Error(w, "End Latitude not found", http.StatusBadRequest)
+
+	} else if entity.End.Lng == 0 {
+
+		http.Error(w, "End Longitude not found", http.StatusBadRequest)
+
+	} else {
+
+		result := service.AgregateAllV21(entity)
 
 		w.Header().Set("Content-Type", "application/json")
 

@@ -6,6 +6,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"os"
 	"os/exec"
 	"runtime"
@@ -18,7 +19,7 @@ import (
 
 func AgregateAllV1(request model.RequestAggregator) (agregator model.Aggregator) {
 
-	agregator = AgregateAll(request)
+	agregator = AgregateAll(request, false)
 
 	repository.SaveSearch(agregator, request)
 
@@ -26,9 +27,15 @@ func AgregateAllV1(request model.RequestAggregator) (agregator model.Aggregator)
 
 }
 
-func AgregateAllV2(request model.RequestAggregator) (agregator model.Aggregator) {
+func AgregateAllV21(request model.RequestAggregator) (agregator model.Aggregator) {
 
-	agregator = AgregateAll(request)
+	return AgregateAllV2(request, true)
+
+}
+
+func AgregateAllV2(request model.RequestAggregator, yetgo bool) (agregator model.Aggregator) {
+
+	agregator = AgregateAll(request, yetgo)
 
 	var players []model.Player
 
@@ -70,7 +77,10 @@ func AgregateAllV2(request model.RequestAggregator) (agregator model.Aggregator)
 			buffer.WriteString(strconv.FormatFloat(agregator.End.Lng, 'G', -1, 64))
 			buffer.WriteString("&dropoff[formatted_address]=")
 			buffer.WriteString(agregator.End.Address)
+
 			element.Url = buffer.String()
+
+			element.UrlAndroid = buffer.String()
 
 		}
 
@@ -90,7 +100,10 @@ func AgregateAllV2(request model.RequestAggregator) (agregator model.Aggregator)
 			buffer.WriteString(strconv.FormatFloat(agregator.End.Lat, 'G', -1, 64))
 			buffer.WriteString("&stops[1][loc][longitude]=")
 			buffer.WriteString(strconv.FormatFloat(agregator.End.Lng, 'G', -1, 64))
+
 			element.Url = buffer.String()
+
+			element.UrlAndroid = "https://app.adjust.com/a0kvh4?deep_link=" + url.QueryEscape(buffer.String())
 
 		}
 
@@ -108,12 +121,34 @@ func AgregateAllV2(request model.RequestAggregator) (agregator model.Aggregator)
 			buffer.WriteString(strconv.FormatFloat(agregator.End.Lng, 'G', -1, 64))
 			buffer.WriteString("&endName=")
 			buffer.WriteString(agregator.End.Address)
+
 			element.Url = buffer.String()
+
+			element.UrlAndroid = "https://app.adjust.com/gvl80l_8y8218?deep_link=" + url.QueryEscape(buffer.String())
 		}
 
 		if element.Id == 4 {
 
 			element.Url = "easytaxi://p/home"
+
+			element.UrlAndroid = "easytaxi://p/home"
+
+		}
+
+		if element.Id == 5 {
+
+			buffer.WriteString("yetgo://content/?action=setPickup&departurelatitude")
+			buffer.WriteString(strconv.FormatFloat(agregator.Start.Lat, 'G', -1, 64))
+			buffer.WriteString("&departurelongitude=")
+			buffer.WriteString(strconv.FormatFloat(agregator.Start.Lng, 'G', -1, 64))
+			buffer.WriteString("&destinationlatitude=")
+			buffer.WriteString(strconv.FormatFloat(agregator.End.Lat, 'G', -1, 64))
+			buffer.WriteString("&destinationlongitude=")
+			buffer.WriteString(strconv.FormatFloat(agregator.End.Lng, 'G', -1, 64))
+
+			element.Url = buffer.String()
+
+			element.UrlAndroid = buffer.String()
 
 		}
 
@@ -435,7 +470,7 @@ func checkHourCompleteZero(time int) (result string) {
 
 }
 
-func AgregateAll(request model.RequestAggregator) (agregator model.Aggregator) {
+func AgregateAll(request model.RequestAggregator, yetgo bool) (agregator model.Aggregator) {
 
 	uuid, err := exec.Command("uuidgen").Output()
 
@@ -445,20 +480,22 @@ func AgregateAll(request model.RequestAggregator) (agregator model.Aggregator) {
 	}
 
 	aggregate := model.Aggregator{
-		Start: request.Start,
-		End:   request.End,
-		Id:    strings.Replace(string(uuid[:]), "\n", "", -1),
+		Start:    request.Start,
+		End:      request.End,
+		Id:       strings.Replace(string(uuid[:]), "\n", "", -1),
+		Duration: 0,
+		Distance: 0,
 	}
 
 	players := repository.FindAllPlayers()
 
 	tokens := repository.GetAccessToken()
 
-	runtime.GOMAXPROCS(3)
+	runtime.GOMAXPROCS(4)
 
 	var wg sync.WaitGroup
 
-	wg.Add(3)
+	wg.Add(4)
 
 	go func() {
 		defer wg.Done()
@@ -508,6 +545,28 @@ func AgregateAll(request model.RequestAggregator) (agregator model.Aggregator) {
 		}
 
 	}()
+
+	if yetgo {
+		go func() {
+			defer wg.Done()
+
+			playerYetGo := GetPlayer(players, 5)
+
+			tokensYetGo := GetTokensByPlayer(tokens, 5)
+
+			yetts := GetEstimatesYetGo(request.Start.Lat, request.Start.Lng, request.End.Lat, request.End.Lng, playerYetGo, GetUnicToken(tokensYetGo))
+
+			for _, element := range yetts {
+				aggregate.Players = append(aggregate.Players, element)
+			}
+
+		}()
+	} else {
+		go func() {
+			defer wg.Done()
+
+		}()
+	}
 
 	wg.Wait()
 
