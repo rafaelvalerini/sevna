@@ -19,7 +19,7 @@ import (
 
 func AgregateAllV1(request model.RequestAggregator) (agregator model.Aggregator) {
 
-	agregator = AgregateAll(request)
+	agregator = AgregateAll(request, false)
 
 	repository.SaveSearch(agregator, request)
 
@@ -27,9 +27,15 @@ func AgregateAllV1(request model.RequestAggregator) (agregator model.Aggregator)
 
 }
 
-func AgregateAllV2(request model.RequestAggregator) (agregator model.Aggregator) {
+func AgregateAllV21(request model.RequestAggregator) (agregator model.Aggregator) {
 
-	agregator = AgregateAll(request)
+	return AgregateAllV2(request, true)
+
+}
+
+func AgregateAllV2(request model.RequestAggregator, yetgo bool) (agregator model.Aggregator) {
+
+	agregator = AgregateAll(request, yetgo)
 
 	var players []model.Player
 
@@ -126,6 +132,23 @@ func AgregateAllV2(request model.RequestAggregator) (agregator model.Aggregator)
 			element.Url = "easytaxi://p/home"
 
 			element.UrlAndroid = "easytaxi://p/home"
+
+		}
+
+		if element.Id == 5 {
+
+			buffer.WriteString("yetgo://content/?action=setPickup&departurelatitude")
+			buffer.WriteString(strconv.FormatFloat(agregator.Start.Lat, 'G', -1, 64))
+			buffer.WriteString("&departurelongitude=")
+			buffer.WriteString(strconv.FormatFloat(agregator.Start.Lng, 'G', -1, 64))
+			buffer.WriteString("&destinationlatitude=")
+			buffer.WriteString(strconv.FormatFloat(agregator.End.Lat, 'G', -1, 64))
+			buffer.WriteString("&destinationlongitude=")
+			buffer.WriteString(strconv.FormatFloat(agregator.End.Lng, 'G', -1, 64))
+
+			element.Url = buffer.String()
+
+			element.UrlAndroid = buffer.String()
 
 		}
 
@@ -447,7 +470,7 @@ func checkHourCompleteZero(time int) (result string) {
 
 }
 
-func AgregateAll(request model.RequestAggregator) (agregator model.Aggregator) {
+func AgregateAll(request model.RequestAggregator, yetgo bool) (agregator model.Aggregator) {
 
 	uuid, err := exec.Command("uuidgen").Output()
 
@@ -468,11 +491,11 @@ func AgregateAll(request model.RequestAggregator) (agregator model.Aggregator) {
 
 	tokens := repository.GetAccessToken()
 
-	runtime.GOMAXPROCS(3)
+	runtime.GOMAXPROCS(4)
 
 	var wg sync.WaitGroup
 
-	wg.Add(3)
+	wg.Add(4)
 
 	go func() {
 		defer wg.Done()
@@ -522,6 +545,28 @@ func AgregateAll(request model.RequestAggregator) (agregator model.Aggregator) {
 		}
 
 	}()
+
+	if yetgo {
+		go func() {
+			defer wg.Done()
+
+			playerYetGo := GetPlayer(players, 5)
+
+			tokensYetGo := GetTokensByPlayer(tokens, 5)
+
+			yetts := GetEstimatesYetGo(request.Start.Lat, request.Start.Lng, request.End.Lat, request.End.Lng, playerYetGo, GetUnicToken(tokensYetGo))
+
+			for _, element := range yetts {
+				aggregate.Players = append(aggregate.Players, element)
+			}
+
+		}()
+	} else {
+		go func() {
+			defer wg.Done()
+
+		}()
+	}
 
 	wg.Wait()
 
